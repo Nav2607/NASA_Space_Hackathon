@@ -12,7 +12,7 @@ ANCHORS_PATH = DATA_DIR / "anchors.json"
 OUT_DIR = DATA_DIR / "anchors"
 
 API = "https://power.larc.nasa.gov/api/temporal/daily/point"
-START, END = "20050101", "20241231"
+START, END = "19810101", "20241231"
 
 PARAMS = {
     "T2M_MAX": "tmax_c",
@@ -73,12 +73,11 @@ def save_anchor(anchor_id: str, lat: float, lon: float):
     folder.mkdir(parents=True, exist_ok=True)
     frame.to_csv(folder / "weather.csv", index=True)
 
-    units = payload.get("properties", {}).get("parameter", {})
+    units = payload.get("parameters", {})
     print(f"  rows: {len(frame)}  ({frame.index.min().date()} to {frame.index.max().date()})")
     print(f"  missing values per column:\n{frame.isna().sum().to_string()}")
-    for key, val in units.items():
-        if key in PARAMS:
-            print(f"  units {key}: {val.get('units')}")
+    for key in PARAMS:
+        print(f"  units {key}: {units.get(key, {}).get('units')}")
     time.sleep(1)
 
 
