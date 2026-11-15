@@ -64,19 +64,6 @@ Reference tables are in `backend/data/reference/`, each value with a source. Any
 
 Full detail: `backend/SCIENTIFIC_VALIDITY.md` and `GET /evidence`.
 
-## Repository layout
-
-```
-backend/
-  api/            FastAPI app (also serves the frontend)
-  engine/         ET0, water balance, ratings, rotation generation, recommender, climate deltas, blind spots
-  data/           anchors, weather, reference tables, NEX deltas, AAFC crop map
-  data_scripts/   fetch and build scripts (NASA POWER, NEX, AAFC)
-  tests/          pytest suite
-frontend/
-  integrated-demo/   map, farm form and results page
-```
-
 ## AI use
 
 AI coding assistance (Claude) helped build the backend and the integration. The numbers the app shows come from the cited data and the model code. No AI-generated values are used as data.
