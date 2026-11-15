@@ -1,12 +1,4 @@
-/**
- * TEAM INTEGRATION — replace these values with real backend configuration.
- * No fictional climate station/anchor data are bundled.
- */
+/* Local demo API. Override apiBase for a hosted backend; no NASA calls from the browser. */
 window.TERRASHIFT_CONFIG = {
-  // Optional: backend URL, e.g. "https://your-api.example.com".
-  apiBase: "",
-  // Optional directly-supplied anchors, if backend has no /api/anchors endpoint yet.
-  // Each: { id: "real-id", name: "real location", lat: 43.5, lng: -80.2 }
-  anchors: [],
-  // Location events connect the map to the farm form.
+  apiBase: "http://127.0.0.1:8000"
 };
