@@ -1,4 +1,4 @@
-# TerraShift — Integrated Ontario prototype
+# Agronaut — Integrated Ontario prototype
 
 **This project was assembled from the two ZIP files the team supplied.** Person 1's original interactive map, basemap/satellite mode, AAFC overlay, Ontario geocoding and hero photo remain. Person 2's farmer-input workflow has been adapted into Person 1's right sidebar. A new full-width climate-screening results section has been added.
 
@@ -42,7 +42,7 @@ Then visit `http://localhost:5500`. **You need an internet connection** for Leaf
 
 ## Interfaces / events
 
-Person 1 triggers `terrashift:location-changed`, with `{ lat, lon, name, anchorId, anchorName, distanceKm, cropYear }`. Person 2 subscribes to this event and enables Compare when a location exists. Person 2 dispatches `terrashift:compare` with `detail = farmData` (which includes `location`, `currentRotation`, `constraints`, `priorities`). Person 3's `results.js` listens to this event.
+Person 1 triggers `agronaut:location-changed`, with `{ lat, lon, name, anchorId, anchorName, distanceKm, cropYear }`. Person 2 subscribes to this event and enables Compare when a location exists. Person 2 dispatches `agronaut:compare` with `detail = farmData` (which includes `location`, `currentRotation`, `constraints`, `priorities`). Person 3's `results.js` listens to this event.
 
 ## Team branch workflow — keep existing work safe
 
@@ -53,7 +53,7 @@ git fetch origin
 git switch -c feature/terrashift-integration origin/frontend
 # Copy the unzipped TerraShift_Integrated folder to frontend/integrated-demo/
 git add frontend/integrated-demo/
-git commit -m "Add integrated TerraShift map farmer inputs and climate screening"
+git commit -m "Add integrated Agronaut map farmer inputs and climate screening"
 git push -u origin feature/terrashift-integration
 ```
 
@@ -83,7 +83,7 @@ Official map sources: https://openfreemap.org/ and https://openfreemap.org/quick
 
 ## Backend integration (current)
 
-Results now come from the Field Shift Canada backend (`POST /recommend`), not from in-browser NASA POWER calls. `results.js` was replaced by `backend-results.js`; the older sections above describing the browser-only screening are historical.
+Results now come from the Agronaut backend (`POST /recommend`), not from in-browser NASA POWER calls. `results.js` was replaced by `backend-results.js`; the older sections above describing the browser-only screening are historical.
 
 Run everything with one command from the repo root, then open http://localhost:8000/ :
 

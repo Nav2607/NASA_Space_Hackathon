@@ -1,4 +1,4 @@
-"""Field Shift Canada API.  Run from the repo root:
+"""Agronaut API.  Run from the repo root:
 
     python -m uvicorn backend.api.main:app --reload --port 8000
 
@@ -21,7 +21,7 @@ from engine import recommend as R                       # noqa: E402
 from engine.blind_spots import blind_spots as run_blind_spots  # noqa: E402
 from engine.weather import DATA_DIR, load_reference     # noqa: E402
 
-app = FastAPI(title="Field Shift Canada API", version="0.1.0",
+app = FastAPI(title="Agronaut API", version="0.1.0",
               description="Educational decision support for comparing crop rotations in Southern Ontario. Not agronomic advice.")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 

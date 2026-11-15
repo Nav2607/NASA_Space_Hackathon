@@ -1,4 +1,4 @@
-/* TerraShift integrated form — compact sidebar, explicit assumptions. */
+/* Agronaut integrated form — compact sidebar, explicit assumptions. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -104,11 +104,11 @@
   const sliderLabels=['water','soil','weather'];
   for(const s of sliderLabels){const inp=$(`${s}Priority`),out=$(`${s}Value`);
     inp.addEventListener('input',()=>out.textContent=`${inp.value} / 5`);}
-  window.addEventListener('terrashift:location-changed',e=>{
+  window.addEventListener('agronaut:location-changed',e=>{
     location=e.detail;
     $('compareButton').disabled=false;$('compareButton').textContent='Compare rotation options ↗';
   });
-  window.addEventListener('terrashift:location-cleared',()=>{
+  window.addEventListener('agronaut:location-cleared',()=>{
     location=null;$('compareButton').disabled=true;$('compareButton').textContent='Choose a field first →';
   });
   function validDate(s){if(!/^\d{4}-\d\d-\d\d$/.test(s))return null;const d=new Date(`${s}T00:00:00Z`);return Number.isFinite(+d)&&d.toISOString().slice(0,10)===s?d:null;}
@@ -161,8 +161,8 @@
       constraints:{nitrogenLimitKgHaYear:null,budgetCadHaYear:$('enableBudget').checked?nonnegNumber('budget'):null},
       priorities:{water:Number($('waterPriority').value),nitrogen:3,soilCover:Number($('soilPriority').value),weatherRisk:Number($('weatherPriority').value)}
     };
-    window.terraShiftFarmData=farmData;
-    console.log('TerraShift farmer input',farmData);
-    window.dispatchEvent(new CustomEvent('terrashift:compare',{detail:farmData}));
+    window.agronautFarmData=farmData;
+    console.log('Agronaut farmer input',farmData);
+    window.dispatchEvent(new CustomEvent('agronaut:compare',{detail:farmData}));
   });
 })();

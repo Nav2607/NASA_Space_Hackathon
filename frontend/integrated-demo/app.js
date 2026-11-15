@@ -1,7 +1,7 @@
-/* TerraShift lightweight map — OpenFreeMap + MapLibre GL JS. No AAFC requests. */
+/* Agronaut lightweight map — OpenFreeMap + MapLibre GL JS. No AAFC requests. */
 (() => {
   'use strict';
-  const cfg = window.TERRASHIFT_CONFIG || {};
+  const cfg = window.AGRONAUT_CONFIG || {};
   const $ = id => document.getElementById(id);
   const statusNode = $('map-status');
   const showStatus = (msg, err=false) => {
@@ -50,7 +50,7 @@
     selection={lat,lon,name,anchorId:nearest?.anchor.id??null,anchorName:nearest?.anchor.name??null,distanceKm:nearest?.distanceKm??null};
     if(marker) marker.remove();
     const pin=document.createElement('div');
-    pin.className='terrashift-selected-marker';
+    pin.className='agronaut-selected-marker';
     pin.setAttribute('aria-label','Selected farm location');
     marker=new maplibregl.Marker({element:pin,anchor:'center'}).setLngLat([lon,lat]).addTo(map);
     $('location-name').replaceChildren();
@@ -65,8 +65,8 @@
     $('anchor-note').lastElementChild.textContent=nearest
       ? `Regional data represented by ${nearest.anchor.name} approximately ${nearest.distanceKm.toFixed(1)} km away; not an on-farm measurement.`
       : 'NASA POWER daily weather will be queried by coordinates. This is a gridded estimate, not on-farm measurement.';
-    window.TerraShiftSelectedLocation={...selection};
-    window.dispatchEvent(new CustomEvent('terrashift:location-changed',{detail:{...selection}}));
+    window.AgronautSelectedLocation={...selection};
+    window.dispatchEvent(new CustomEvent('agronaut:location-changed',{detail:{...selection}}));
   }
   map.on('load',()=>showStatus(''));
   map.on('error',event=>{
@@ -153,16 +153,16 @@
       .map(a=>({id:a.id,name:a.name,lat:Number(a.lat),lng:Number(a.lng)}));
     anchorMarkers.forEach(m=>m.remove());anchorMarkers=[];
     for(const a of anchors){
-      const dot=document.createElement('div');dot.className='terrashift-anchor-marker';
+      const dot=document.createElement('div');dot.className='agronaut-anchor-marker';
       const mk=new maplibregl.Marker({element:dot,anchor:'center'}).setLngLat([a.lng,a.lat]).setPopup(new maplibregl.Popup().setText('Climate data area: '+a.name)).addTo(map);
       anchorMarkers.push(mk);
     }
   }
   $('continue-button').addEventListener('click',()=>{
     if(!selection)return;
-    const data={...selection};window.TerraShiftSelectedLocation=data;
-    window.dispatchEvent(new CustomEvent('terrashift:location-selected',{detail:data}));
-    try{sessionStorage.setItem('terrashift-location',JSON.stringify(data));}catch(e){}
+    const data={...selection};window.AgronautSelectedLocation=data;
+    window.dispatchEvent(new CustomEvent('agronaut:location-selected',{detail:data}));
+    try{sessionStorage.setItem('agronaut-location',JSON.stringify(data));}catch(e){}
     $('rotationRows')?.scrollIntoView({behavior:'smooth',block:'center'});
   });
   $('reset-button').addEventListener('click',()=>{
@@ -171,9 +171,9 @@
     $('coordinates').textContent='—';$('nearest-anchor').textContent='Awaiting climate data';$('anchor-distance').textContent='—';
     $('continue-button').disabled=true;$('integration-note').hidden=true;
     $('anchor-note').lastElementChild.textContent='Your location helps connect farm inputs to regional climate information. Regional estimates may differ from field conditions.';
-    try{sessionStorage.removeItem('terrashift-location');}catch(e){}
-    window.TerraShiftSelectedLocation=null;
-    window.dispatchEvent(new CustomEvent('terrashift:location-cleared'));
+    try{sessionStorage.removeItem('agronaut-location');}catch(e){}
+    window.AgronautSelectedLocation=null;
+    window.dispatchEvent(new CustomEvent('agronaut:location-cleared'));
   });
   $('print-button').addEventListener('click',()=>window.print());
   loadAnchors();

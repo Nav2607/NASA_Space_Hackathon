@@ -1,4 +1,4 @@
-/* TerraShift results — calls the Field Shift Canada backend (POST /recommend).
+/* Agronaut results — calls the Agronaut backend (POST /recommend).
    Every number shown comes from the API response; nothing is computed or invented here. */
 (() => {
   'use strict';
@@ -12,7 +12,7 @@
     silt_loam: ['loam', 'Silt loam was modelled as loam (closest available).'],
     unknown: ['loam', 'Soil texture not given; loam was assumed.'],
   };
-  const cfg = window.TERRASHIFT_CONFIG || {};
+  const cfg = window.AGRONAUT_CONFIG || {};
   const apiBase = (cfg.apiBase || (location.port === '8000' ? '' : 'http://localhost:8000')).replace(/\/$/, '');
 
   let lastInput = null, lastResponse = null, mode = 'typical', busy = false;
@@ -153,7 +153,7 @@
   fut.disabled = false; fut.title = 'Climate-model projection, 2031–2050'; fut.textContent = '2031–2050 projection';
   fut.addEventListener('click', () => selectScenario('future'));
 
-  window.addEventListener('terrashift:compare', e => {
+  window.addEventListener('agronaut:compare', e => {
     lastInput = buildRequest(e.detail); mode = 'typical'; markScenario('typical');
     $('results').hidden = false; $('results').scrollIntoView({behavior: 'smooth', block: 'start'});
     run('historical');

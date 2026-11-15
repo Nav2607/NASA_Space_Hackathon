@@ -1,4 +1,4 @@
-# Field Shift Canada (TerraShift)
+# Agronaut
 
 Decision support for Southern Ontario farmers: **compare crop rotations under historical and projected climate**, using NASA data.
 Built for NASA Space Apps 2026, challenge *Field Shift: Adapting Farms with NASA Data*.

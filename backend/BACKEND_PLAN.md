@@ -1,4 +1,4 @@
-# Backend Plan: Field Shift Canada
+# Backend Plan: Agronaut
 
 Goal: given a location and farmer inputs, return a baseline evaluation plus 3-5 alternative crop rotations, each with scores, ratings, confidence labels and plain-language explanations.
 

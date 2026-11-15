@@ -1,4 +1,4 @@
-# AGENTS.md — Field Shift Canada
+# AGENTS.md — Agronaut
 
 ## Project authority
 

@@ -751,13 +751,13 @@ form.addEventListener("submit", event => {
     }
   };
 
-  window.terraShiftFarmData = farmData;
+  window.agronautFarmData = farmData;
 
-  console.log("TerraShift Farmer Input:");
+  console.log("Agronaut Farmer Input:");
   console.log(JSON.stringify(farmData, null, 2));
 
   window.dispatchEvent(
-    new CustomEvent("terrashift:compare", { detail: farmData })
+    new CustomEvent("agronaut:compare", { detail: farmData })
   );
 
   showSuccess(

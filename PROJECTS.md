@@ -1,4 +1,4 @@
-# Field Shift Canada — Project specification (v5)
+# Agronaut — Project specification (v5)
 
 NASA Space Apps 2026 · Field Shift: Adapting Farms with NASA Data
 
