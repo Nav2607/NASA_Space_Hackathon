@@ -1,95 +1,169 @@
-# Agronaut — Integrated Ontario prototype
+# Field Shift Canada — future-focused frontend
 
-**This project was assembled from the two ZIP files the team supplied.** Person 1's original interactive map, basemap/satellite mode, AAFC overlay, Ontario geocoding and hero photo remain. Person 2's farmer-input workflow has been adapted into Person 1's right sidebar. A new full-width climate-screening results section has been added.
+Implementation branch: `frontend-dashboard-enhancement`, based on `origin/frontend`.
+The backend is **unchanged**, running in a detached worktree at merge `641b6f2`.
+No backend files were merged or copied into this frontend branch.
 
-## Quick start
+## Run locally
 
-Unzip the folder. Open the folder in VS Code. Right-click `index.html` and select **Open with Live Server**. Alternatively, from this folder run:
+Use two terminals. From the frontend repository, install the backend's existing
+requirements in your local virtual environment if needed:
 
-```bash
-python -m http.server 5500
+```sh
+.venv/bin/python -m pip install -r /private/tmp/fieldshift-backend-integration/backend/requirements-dev.txt
 ```
 
-Then visit `http://localhost:5500`. **You need an internet connection** for Leaflet, geocoding, map imagery, AAFC imagery, and NASA POWER requests.
+Terminal 1, initially in the frontend repository:
 
-## What works
-
-1. Search or click a location in Ontario. This is retained from Person 1.
-2. In the **same right-hand panel**, enter crop sequence, a planning year, soil, irrigation, priorities, optional constraints and crop history. The form allows missing/unknown values and reports multiple validation errors.
-3. Click **Compare rotation options**. The browser requests *real* NASA POWER historical daily precipitation, maximum temperature and minimum temperature for 2012–2025 at the selected coordinates. If the API fails, there is **no fake-data fallback**.
-4. Under the map, compare your usual four-year pattern against up to three **predefined illustrative** rotation alternatives under all historical four-year weather sequences or the approximately driest 30% of those sequences.
-5. Results include indicative reference ET × fixed crop coefficients, daily climate shortfall, rainfall, extreme-heat days, and scheduled crop days, with plain-language caveats and expandable methods.
-
-## Scientific limitations — read before presenting
-
-- **These are indicative climate screenings**, not validated crop water-balance or irrigation requirement predictions. The screen uses Hargreaves–Samani reference ET (FAO-56) and **fixed demonstrative coefficients**, rather than stage-specific FAO-56 crop Kc, soil reservoirs, observed soil moisture, crop yields, root depth or water-stress response.
-- The `daily climate shortfall` = sum of positive (daily estimated crop demand minus daily precipitation). **It is NOT actual irrigation need**, drought survival, observed moisture deficit or yield loss. Rainfall/runoff/storage terms are not simulated.
-- The preset crop dates are **unverified illustrative calendar assumptions**, not Ontario provincial crop recommendations. Farmer-entered dates are used when available. Seasonal plans shorter than four years repeat their sequence. Crop overlap is permitted, but agronomic feasibility is not checked.
-- Results use **real NASA POWER historical data**, which are regional gridded estimates, not farm measurements. Dry seasons are retrospective choices from the dataset, **not forecasts**.
-- Alternatives are **predefined example crop sequences, not optimized recommendations**. Must-grow and avoid crop constraints are applied to these examples; nitrogen, budgets, equipment, yields, costs and effective soil cover are **not evaluated**. If the farmer specifies these constraints, the results explicitly say so. AAFC raster is an optional map visualization; it is **not used to infer verified field crop history**.
-- **NEX-GDDP-CMIP6 is not connected in this browser-only deliverable.** The 2050s toggle is disabled. It needs real preprocessed, bias-adjusted, model- and scenario-labelled daily projections, preferably an ensemble, before implementation. Do not imply future scenarios are calculated yet.
-- The app is a **pilot oriented toward Southern Ontario**, but the retained Person 1 map can select other Ontario locations; validated locality filtering remains a follow-up task.
-
-## Files
-
-- `index.html`: integrated single-page application
-- `styles.css`: original Person 1 theme + integrated input/results styles
-- `app.js`: original Person 1 map and place selection, with small integration changes
-- `farm-form.js`: compact Person 2 inputs, validation and dispatch
-- `results.js`: historical daily NASA climate-screening results
-- `config.js`: retained Person 1 anchor configuration
-- `assets/ontario-farm-hero.png`: original supplied asset
-
-## Interfaces / events
-
-Person 1 triggers `agronaut:location-changed`, with `{ lat, lon, name, anchorId, anchorName, distanceKm, cropYear }`. Person 2 subscribes to this event and enables Compare when a location exists. Person 2 dispatches `agronaut:compare` with `detail = farmData` (which includes `location`, `currentRotation`, `constraints`, `priorities`). Person 3's `results.js` listens to this event.
-
-## Team branch workflow — keep existing work safe
-
-Your individual branches already exist, so **do not overwrite `frontend/index.html` or merge into `main` immediately**. Create a separate integration feature branch based on the latest team `frontend` branch and put this folder under `frontend/integrated-demo/`:
-
-```bash
-git fetch origin
-git switch -c feature/terrashift-integration origin/frontend
-# Copy the unzipped TerraShift_Integrated folder to frontend/integrated-demo/
-git add frontend/integrated-demo/
-git commit -m "Add integrated Agronaut map farmer inputs and climate screening"
-git push -u origin feature/terrashift-integration
+```sh
+FIELD_SHIFT_REPO="$PWD"
+cd /private/tmp/fieldshift-backend-integration
+"$FIELD_SHIFT_REPO/.venv/bin/python" -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8000
 ```
 
-Open a PR with **base `frontend`**, compare `feature/terrashift-integration`. Get Person 1 and Person 3 to review. When ready, choose whether the team wants to replace the main entry `frontend/index.html`; do so **in a reviewed integration PR**, not on a teammate's branch.
+Terminal 2, in the frontend repository:
 
-## NASA sources
-
-- Historical daily POWER endpoint: https://power.larc.nasa.gov/docs/tutorials/service-data-request/api/
-- NEX-GDDP-CMIP6 dataset and access: https://www.nccs.nasa.gov/data-collections/nex-gddp-cmip6/
-- FAO-56 reference ET: https://www.fao.org/4/x0490e/x0490e00.htm
-
-### Why the future toggle is currently disabled
-
-NEX-GDDP-CMIP6 is generally distributed as NetCDF via THREDDS/AWS, **not the same daily JSON API as POWER historical weather**. A backend must extract the selected location, choose SSP/model ensemble, harmonize units (K→°C, precipitation kg m⁻² s⁻¹→mm/day), collect a multiyear window, and serve the same normalized daily data schema. Only then should the toggle be enabled with explicit scenario and model uncertainty labels.
-
-
-## Lightweight OpenFreeMap edition (2026-11-14)
-
-This update removes the optional AAFC satellite crop overlay and imagery export requests completely.
-The basemap now uses OpenFreeMap vector tiles through MapLibre GL JS, with **Map** (Liberty) and **Light** (Positron) styles. OpenFreeMap does **not** provide satellite aerial imagery; the former Satellite toggle was replaced with Light.
-NASA POWER historical weather screening, farmer inputs, location selection, and results are unchanged.
-The map needs internet and a WebGL-capable browser. Test through Live Server.
-If a map remains blank, inspect developer tools Console/Network for failed tile, script, or WebGL loads; removing AAFC alone does not solve all possible failures.
-
-Official map sources: https://openfreemap.org/ and https://openfreemap.org/quick_start/
-
-
-## Backend integration (current)
-
-Results now come from the Agronaut backend (`POST /recommend`), not from in-browser NASA POWER calls. `results.js` was replaced by `backend-results.js`; the older sections above describing the browser-only screening are historical.
-
-Run everything with one command from the repo root, then open http://localhost:8000/ :
-
-```bash
-pip install -r backend/requirements.txt
-python -m uvicorn backend.api.main:app --port 8000
+```sh
+.venv/bin/python -m http.server 5500 --bind 127.0.0.1 --directory frontend/integrated-demo
 ```
 
-If the page is served elsewhere (Live Server, port 5500), set `apiBase` in `config.js` (default `http://localhost:8000`). The "2031–2050 projection" button re-runs the model with NEX-GDDP-CMIP6 change factors. Form soils the backend lacks (sandy, silt loam, unknown) are mapped to the nearest one and the user is told.
+Open **http://127.0.0.1:5500/**. `config.js` sets the API address. If you need another
+backend worktree, create one separately from `origin/backend`; do not merge it
+into this frontend branch merely to run the app.
+
+## Current farmer workflow
+
+1. Search for a Southern Ontario location, click the map, or use browser location.
+   The cached-location selector has been removed as requested.
+2. Enter 1–4 cash crops in their existing order, soil texture, equipment and crop
+   constraints. Adjust priorities if useful. There are no unused irrigation or
+   tile-drainage controls, and those fields are not sent to the API.
+3. Compare once. The frontend always requests **future** scoring under SSP2-4.5,
+   2031–2050. There is no historical/future choice to make.
+4. Read the leaderboard. The original is blue-grey; the backend's balanced choice
+   is green and marked **Algorithm's pick**. Nitrogen categories use low/medium/high
+   colours but remain qualitative indicators, not fertilizer savings.
+5. An ordered, continuous rotation timeline loads automatically for the recommended
+   alternative. Year cards retain repeated crop positions. Daily soil storage,
+   unmet-demand bars and water/heat/combined stress lanes replace percentage tiles.
+   Selecting another row updates this view on the same page. A labeled single-model
+   reference cycle illustrates continuity; full-period days/year totals summarize
+   all phases and models. There are no result tabs or climate-outlook panel.
+6. Open **How did we model this?** after the results. It opens a separate page/tab
+   so the active farm inputs and results remain available.
+
+The algorithm highlight uses the backend's `balanced` label (including combined
+labels), falling back to its highest returned score if necessary. The frontend
+neither changes scoring nor invents an agronomic best rotation. Options keep their
+returned order. Review unfavorable differences as well as favorable ones.
+
+## Two model limitations deliberately exposed
+
+**Cover crops:** rye and red clover appear as disabled choices labelled unavailable.
+Their water demand/calendar inputs are incomplete in the current backend. Enabling
+them would falsely imply they participate in the simulation. They are not silently
+removed or assigned water-free benefits. Actual support needs separately scoped
+scientific/backend work.
+
+**Corn → winter wheat:** the frontend accepts the entered cash-crop order. Under
+some sequences the backend's fixed representative corn harvest falls after the
+wheat planting window. If that makes the model calendar infeasible, the UI keeps
+the original sequence and explains the prototype limitation, with unavailable
+metrics. It does not tell a farmer their real rotation is inherently wrong, label
+an uncomputable result merely “suboptimal,” or fabricate a recommendation.
+
+## API integration and requests
+
+- `GET /anchors`: internal metadata for regional map snapping/markers. No separate
+  cached-anchor input remains.
+- `POST /recommend`: always `climate_period: "future"`; baseline, constrained
+  alternatives, existing scores/labels and future metrics come from the backend.
+  Historical references remain internal to the scientific calculation.
+- `POST /blind-spots`: always `climate_period: "future"`, only for the rotation
+  currently shown. One response supplies **the complete rotation timeline**; no duplicate
+  request per stress type or speculative daily downloads for every alternative.
+- Existing backend historical periods are not deleted; they are simply removed
+  from the primary farmer-facing result flow.
+
+Up to eight in-memory response promises are reused for unchanged inputs. Duplicate
+pending requests are shared. Farm edits abort/invalidate old requests and results;
+late responses cannot redraw an earlier farm. Failures do not substitute examples.
+The API has no summary-only or `include_daily` option, so full Blind Spots responses
+remain large (roughly 4–20 MiB for previously measured rotations).
+
+## Methodology page
+
+`methodology.html` / `methodology.js` contain:
+
+- NASA POWER, NEX-GDDP-CMIP6 and crop/soil reference roles, resolutions and official links.
+- The historical-reference → independent-model → rotation-comparison pipeline.
+- A labelled schematic soil-water diagram (not a farm measurement).
+- Hargreaves, crop demand, daily storage/mass balance and stress equations.
+- Actual priority weights and original/recommended result bars when opened from a run.
+- Model assumptions, nitrogen interpretation, infeasible calendars and unsupported cover crops.
+
+A **small result snapshot**, not daily datasets, is carried in the link's URL
+fragment so it works in a separate tab without an opener. It contains displayed
+regional/metric/priority information, not credentials. The fragment is not sent
+as part of an HTTP request. The page also accepts same-tab session context. A
+standalone source-page visit has no fake result-chart fallback.
+
+The future graphs are climate sensitivity projections: monthly model changes are
+applied to historical weather sequences. They do not forecast exact future dates,
+new rainfall occurrence, heatwave timing or crop damage. Timeline month labels follow the returned reference dates; crop bands follow the
+engine’s approximate calendars, not observed phenology.
+
+## Tests and review
+
+```sh
+node --test frontend/integrated-demo/tests/dashboard-core.test.cjs
+node --check frontend/integrated-demo/dashboard.js
+node --check frontend/integrated-demo/dashboard-core.js
+node --check frontend/integrated-demo/farm-form.js
+node --check frontend/integrated-demo/app.js
+node --check frontend/integrated-demo/methodology.js
+git diff --check
+```
+
+Nineteen adapter/display tests cover request/sequence preservation, ignored-water
+field omission, unsupported inputs, missing vs zero values, priority normalization,
+period mapping, actual median-field use, recommendation selection and calendar-error
+wording, rotation-cycle ordering, winter transitions, missing daily diagnostics
+and stress-band grouping. The unchanged separate backend passed its 94-test suite in the preceding
+integration milestone; no new backend-test result is implied by frontend edits.
+
+Browser checks use actual HTTP backend responses for future scoring, automatic
+continuous rotation timeline rendering, algorithm selection, neutral baseline, coloured nitrogen,
+methodology snapshots and corn/wheat calendar rejection. If an external geocoder
+is unavailable, the test harness records that and uses the location-event contract
+with real anchor coordinates; it never mocks simulation outputs. Test output must
+be consulted before claiming external search was verified.
+
+This is a static vanilla-JavaScript application. There is no configured build,
+TypeScript or lint pipeline and no new runtime dependencies.
+
+## Network dependencies and preserved work
+
+The optional map uses MapLibre CDN scripts/styles, OpenFreeMap tiles/styles and
+Nominatim search/reverse geocoding. The cached-location fallback was intentionally
+removed, so test map/search connectivity before a live demo. Backend weather and
+projections remain offline caches; no runtime NASA calls are introduced. The hero
+photo and methodology illustration are local; there are no Google Fonts requests.
+
+The original `results.js` and standalone `frontend/farmer-form/` remain preserved
+but are not loaded by the integrated page. Do not load the legacy browser-only
+simulation alongside the real backend dashboard. See
+[SCIENTIFIC_CLAIM_AUDIT.md](SCIENTIFIC_CLAIM_AUDIT.md) for field-level traceability.
+
+## Continuous rotation visual
+
+The timeline plots returned daily `storage_mm` and `unmet_demand_mm` without
+recalculating water balance. Stress lanes group existing flags for display only.
+The crop band uses actual daily crop identities; year headers identify harvest
+years, so winter wheat can start the previous autumn. A complete interior cycle
+is shown by default; advanced controls select an existing model, starting position
+or reference cycle without new API requests. No daily weather is averaged across
+models. Missing diagnostics leave the illustration unavailable. The API does not
+expose daily potential demand, so no demand curve is manufactured in JavaScript.
+Reference dates remain explicitly historical weather sequences adjusted by monthly
+2031–2050 climate factors, never deterministic future-year forecasts.

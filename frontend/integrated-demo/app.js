@@ -1,7 +1,7 @@
-/* Agronaut lightweight map — OpenFreeMap + MapLibre GL JS. No AAFC requests. */
+/* TerraShift lightweight map — OpenFreeMap + MapLibre GL JS. No AAFC requests. */
 (() => {
   'use strict';
-  const cfg = window.AGRONAUT_CONFIG || {};
+  const cfg = window.TERRASHIFT_CONFIG || {};
   const $ = id => document.getElementById(id);
   const statusNode = $('map-status');
   const showStatus = (msg, err=false) => {
@@ -10,19 +10,27 @@
     statusNode.hidden = !msg;
     statusNode.style.color = err ? '#a24222' : '#244D3E';
   };
+  // Anchor metadata supports map snapping; no alternate cached-location input.
+  window.TerraShiftAnchorsPromise = fetch(`${(cfg.apiBase || 'http://127.0.0.1:8000').replace(/\/$/, '')}/anchors`)
+    .then(r => { if (!r.ok) throw new Error('Location metadata unavailable'); return r.json(); })
+    .then(data => Object.entries(data).map(([id,p])=>({id,name:id.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase()),lat:p.lat,lng:p.lon})))
+    .catch(()=>[]);
+  $('continue-button').addEventListener('click', () => { if(window.TerraShiftSelectedLocation) $('rotationRows').scrollIntoView({behavior:'smooth',block:'center'}); });
+  $('print-button').addEventListener('click',()=>window.print());
   if (!window.maplibregl) {
-    $('search-message').textContent='Map library failed to load. Check internet and disable blocking extensions, then refresh.';
+    $('search-message').textContent='Online map unavailable. Check your connection and refresh to select your farm.';
     return;
   }
   const STYLES = {
     street: 'https://tiles.openfreemap.org/styles/liberty',
     light: 'https://tiles.openfreemap.org/styles/positron'
   };
-  const map = new maplibregl.Map({
-    container: 'map', style: STYLES.street, center: [-79.65,44.1], zoom: 7.6,
+  let map;
+  try { map = new maplibregl.Map({
+    container: 'map', style: STYLES.street, center: [-80.4,43.55], zoom: 7.6,
     minZoom: 5, maxZoom: 17, attributionControl: true,
     maxBounds: [[-93,41],[-73,57.5]]
-  });
+  }); } catch (error) { showStatus('Interactive map unavailable. Check browser WebGL support and refresh.', true); return; }
   map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-left');
   map.addControl(new maplibregl.ScaleControl({unit:'metric'}), 'bottom-left');
   let selection = null;
@@ -42,7 +50,7 @@
     if(!anchors.length)return null;
     return anchors.map(anchor=>({anchor,distanceKm:distanceKm(lat,lon,anchor.lat,anchor.lng)})).sort((a,b)=>a.distanceKm-b.distanceKm)[0];
   }
-  function selectLocation(lat,lon,name='Selected Ontario location'){
+  function selectLocation(lat,lon,name='Selected Ontario location',emit=true){
     if(!Number.isFinite(lat)||!Number.isFinite(lon)||!isInEnvelope(lat,lon)){
       $('search-message').textContent='Please select a location within Ontario.';return;
     }
@@ -50,7 +58,7 @@
     selection={lat,lon,name,anchorId:nearest?.anchor.id??null,anchorName:nearest?.anchor.name??null,distanceKm:nearest?.distanceKm??null};
     if(marker) marker.remove();
     const pin=document.createElement('div');
-    pin.className='agronaut-selected-marker';
+    pin.className='terrashift-selected-marker';
     pin.setAttribute('aria-label','Selected farm location');
     marker=new maplibregl.Marker({element:pin,anchor:'center'}).setLngLat([lon,lat]).addTo(map);
     $('location-name').replaceChildren();
@@ -64,9 +72,9 @@
     $('integration-note').hidden=true;
     $('anchor-note').lastElementChild.textContent=nearest
       ? `Regional data represented by ${nearest.anchor.name} approximately ${nearest.distanceKm.toFixed(1)} km away; not an on-farm measurement.`
-      : 'NASA POWER daily weather will be queried by coordinates. This is a gridded estimate, not on-farm measurement.';
-    window.AgronautSelectedLocation={...selection};
-    window.dispatchEvent(new CustomEvent('agronaut:location-changed',{detail:{...selection}}));
+      : 'The backend snaps this point to the nearest supported regional anchor; it is not a field measurement.';
+    window.TerraShiftSelectedLocation={...selection};
+    if(emit) window.dispatchEvent(new CustomEvent('terrashift:location-changed',{detail:{...selection}}));
   }
   map.on('load',()=>showStatus(''));
   map.on('error',event=>{
@@ -106,7 +114,7 @@
       selectLocation(lat,lon,town?`${town}, Ontario`:label);
       $('search-message').textContent='Farm location selected. Click somewhere else to change it.';
     }catch(e){
-      if(id===clickRequest)$('search-message').textContent='Could not verify this point. Try searching a nearby Ontario town instead.';
+      if(id===clickRequest)$('search-message').textContent='Could not verify this point. Check your connection or search for a nearby town.';
     }
   }
   map.on('click',e=>selectOntarioPoint(e.lngLat.lat,e.lngLat.lng));
@@ -127,7 +135,7 @@
       ++clickRequest;
       selectLocation(lat,lon,found.display_name.split(',').slice(0,3).join(',').trim());
       $('search-message').textContent='Location found. Click the field to adjust the pin.';
-    }catch(e){if(e.name!=='AbortError')$('search-message').textContent='Search is unavailable. You can still click the map.';}
+    }catch(e){if(e.name!=='AbortError')$('search-message').textContent='Search is unavailable. Check your connection and try again.';}
     finally{$('search-button').disabled=false;$('search-button').textContent='Search';}
   });
   $('my-location').addEventListener('click',()=>{
@@ -141,28 +149,21 @@
     },()=>{$('search-message').textContent='Location access unavailable. Search or click the map instead.';},{enableHighAccuracy:false,timeout:12000});
   });
   async function loadAnchors(){
-    let data=Array.isArray(cfg.anchors)?cfg.anchors:[];
-    if(cfg.apiBase){
-      try{
-        const r=await fetch(`${cfg.apiBase.replace(/\/$/,'')}/api/anchors`,{headers:{Accept:'application/json'}});
-        if(!r.ok)throw new Error('Anchors HTTP '+r.status);
-        const json=await r.json();data=Array.isArray(json)?json:Array.isArray(json.anchors)?json.anchors:[];
-      }catch(e){console.warn('Climate anchors not loaded',e);}
-    }
+    const data = await window.TerraShiftAnchorsPromise;
     anchors=data.filter(a=>a&&typeof a.id==='string'&&typeof a.name==='string'&&Number.isFinite(Number(a.lat))&&Number.isFinite(Number(a.lng)))
       .map(a=>({id:a.id,name:a.name,lat:Number(a.lat),lng:Number(a.lng)}));
     anchorMarkers.forEach(m=>m.remove());anchorMarkers=[];
     for(const a of anchors){
-      const dot=document.createElement('div');dot.className='agronaut-anchor-marker';
+      const dot=document.createElement('div');dot.className='terrashift-anchor-marker';
       const mk=new maplibregl.Marker({element:dot,anchor:'center'}).setLngLat([a.lng,a.lat]).setPopup(new maplibregl.Popup().setText('Climate data area: '+a.name)).addTo(map);
       anchorMarkers.push(mk);
     }
   }
   $('continue-button').addEventListener('click',()=>{
     if(!selection)return;
-    const data={...selection};window.AgronautSelectedLocation=data;
-    window.dispatchEvent(new CustomEvent('agronaut:location-selected',{detail:data}));
-    try{sessionStorage.setItem('agronaut-location',JSON.stringify(data));}catch(e){}
+    const data={...selection};window.TerraShiftSelectedLocation=data;
+    window.dispatchEvent(new CustomEvent('terrashift:location-selected',{detail:data}));
+    try{sessionStorage.setItem('terrashift-location',JSON.stringify(data));}catch(e){}
     $('rotationRows')?.scrollIntoView({behavior:'smooth',block:'center'});
   });
   $('reset-button').addEventListener('click',()=>{
@@ -171,11 +172,11 @@
     $('coordinates').textContent='—';$('nearest-anchor').textContent='Awaiting climate data';$('anchor-distance').textContent='—';
     $('continue-button').disabled=true;$('integration-note').hidden=true;
     $('anchor-note').lastElementChild.textContent='Your location helps connect farm inputs to regional climate information. Regional estimates may differ from field conditions.';
-    try{sessionStorage.removeItem('agronaut-location');}catch(e){}
-    window.AgronautSelectedLocation=null;
-    window.dispatchEvent(new CustomEvent('agronaut:location-cleared'));
+    try{sessionStorage.removeItem('terrashift-location');}catch(e){}
+    window.TerraShiftSelectedLocation=null;
+    window.dispatchEvent(new CustomEvent('terrashift:location-cleared'));
   });
-  $('print-button').addEventListener('click',()=>window.print());
+
   loadAnchors();
   if(typeof ResizeObserver!=='undefined'){
     const resizeObserver=new ResizeObserver(()=>map.resize());resizeObserver.observe($('map'));
