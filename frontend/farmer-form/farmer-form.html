@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TerraShift | Farm details</title>
+  <link rel="stylesheet" href="farmer-form.css" />
+  <script src="farmer-form.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <div class="brand-wrap">
+        <div class="brand-mark">✳</div>
+        <div class="brand-text">TerraShift</div>
+        <div class="brand-divider"></div>
+        <div class="brand-subtitle">Ontario farm planning</div>
+      </div>
+
+      <nav class="site-nav">
+        <a href="#" class="site-nav__link">Explore</a>
+        <a href="#" class="site-nav__link site-nav__link--active">Farm details</a>
+        <a href="#" class="site-nav__link">Our data</a>
+        <span class="site-pill">Ontario, Canada</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero-card">
+      <div class="hero-card__content">
+        <p class="eyebrow">CLIMATE-SMART CROP ROTATION PLANNING</p>
+        <h1>Tell us about your farm.</h1>
+        <p class="hero-copy">
+          Add your land, irrigation, and crop rotation details so TerraShift
+          can compare rotation options that fit your field.
+        </p>
+      </div>
+    </section>
+
+    <section class="steps-row">
+      <div class="step-card step-card--done">
+        <div class="step-number">01</div>
+        <div>
+          <h3>Find your farm</h3>
+          <p>Search or choose it on the map</p>
+        </div>
+      </div>
+
+      <div class="step-card step-card--active">
+        <div class="step-number">02</div>
+        <div>
+          <h3>Tell us about it</h3>
+          <p>Soil, water and crops you grow</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <div>
+          <h3>Explore your options</h3>
+          <p>Compare future crop rotations</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <div class="workspace-main">
+        <form id="farmerForm" class="panel-card form-card" novalidate>
+          <div class="panel-card__header">
+            <p class="eyebrow">02 / YOUR FARM DETAILS</p>
+            <h2>Build your farm profile</h2>
+            <p class="section-copy">
+              Tell us what you know. If you are unsure, TerraShift will keep
+              those fields clearly labeled as unknown or estimated.
+            </p>
+          </div>
+
+          <!-- LAND & WATER -->
+          <section class="form-section">
+            <div class="section-heading">
+              <h3>Land & water</h3>
+              <p>Basic field conditions and irrigation availability.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="soil">What type of soil do you have?</label>
+              <select id="soil">
+                <option value="unknown">I’m not sure</option>
+                <option value="sandy">Sandy</option>
+                <option value="sandy_loam">Sandy loam</option>
+                <option value="loam">Loam</option>
+                <option value="silt_loam">Silt loam</option>
+                <option value="clay_loam">Clay loam</option>
+                <option value="clay">Clay</option>
+              </select>
+              <small>Regional soil data may help fill this in later.</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="drainage">Tile drainage</label>
+                <select id="drainage">
+                  <option value="unknown">I’m not sure</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="slope">Field slope</label>
+                <select id="slope">
+                  <option value="unknown">I’m not sure</option>
+                  <option value="flat">Mostly flat</option>
+                  <option value="gentle">Gently sloping</option>
+                  <option value="steep">Steeper field</option>
+                </select>
+              </div>
+            </div>
+
+            <fieldset class="form-group">
+              <legend>Do you use irrigation on this field?</legend>
+
+              <div class="choice-group">
+                <label class="choice-chip">
+                  <input type="radio" name="irrigation" value="yes" />
+                  <span>Yes</span>
+                </label>
+
+                <label class="choice-chip">
+                  <input type="radio" name="irrigation" value="no" />
+                  <span>No — rainfed farming</span>
+                </label>
+
+                <label class="choice-chip">
+                  <input type="radio" name="irrigation" value="unknown" checked />
+                  <span>I don’t know</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div id="irrigationDetails" class="sub-card" hidden>
+              <fieldset class="form-group">
+                <legend>Is your irrigation water supply limited?</legend>
+
+                <div class="choice-group">
+                  <label class="choice-chip">
+                    <input type="radio" name="waterLimit" value="known" />
+                    <span>Yes, I know my limit</span>
+                  </label>
+
+                  <label class="choice-chip">
+                    <input type="radio" name="waterLimit" value="unknown" checked />
+                    <span>I don’t know my water limit</span>
+                  </label>
+
+                  <label class="choice-chip">
+                    <input type="radio" name="waterLimit" value="unspecified" />
+                    <span>No specified limit</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <div id="capacityGroup" class="form-group" hidden>
+                <label for="capacity">Available irrigation water</label>
+
+                <div class="form-row form-row--narrow">
+                  <input
+                    id="capacity"
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="e.g. 150"
+                  />
+
+                  <select id="capacityUnit">
+                    <option value="mm_per_season">mm / season</option>
+                    <option value="m3_per_ha_per_season">m³ / ha / season</option>
+                  </select>
+                </div>
+
+                <small>
+                  1 mm = 10 m³ per hectare. “No specified limit” does not
+                  imply unlimited water.
+                </small>
+              </div>
+            </div>
+          </section>
+
+          <!-- ROTATION -->
+          <section class="form-section">
+            <div class="section-heading">
+              <h3>Your usual rotation</h3>
+              <p>
+                Add the crops you usually grow. This will be your baseline for
+                comparison.
+              </p>
+            </div>
+
+            <div class="info-banner">
+              <strong>Example:</strong> Corn → Soybean → Winter wheat
+            </div>
+
+            <div class="form-group">
+              <label for="rotationStartYear">First growing year in this plan</label>
+              <input
+                id="rotationStartYear"
+                type="number"
+                min="2000"
+                max="2100"
+                step="1"
+                value="2027"
+              />
+              <small>
+                TerraShift uses this to organize your 4-year planning horizon.
+              </small>
+            </div>
+
+            <div id="rotationRows"></div>
+
+            <button type="button" id="addCrop" class="ghost-button">
+              + Add another crop
+            </button>
+
+            <p id="rotationInfo" class="helper-line"></p>
+          </section>
+
+          <!-- PRIORITIES -->
+          <section class="form-section">
+            <div class="section-heading">
+              <h3>Your priorities</h3>
+              <p>Tell TerraShift what matters most to your farm decisions.</p>
+            </div>
+
+            <div class="priority-block">
+              <div class="priority-head">
+                <label for="waterPriority">Save water</label>
+                <output id="waterValue">3 / 5 · Moderate</output>
+              </div>
+              <input id="waterPriority" type="range" min="1" max="5" value="3" />
+              <small>Prefer rotations with lower water demand.</small>
+            </div>
+
+            <div class="priority-block">
+              <div class="priority-head">
+                <label for="nitrogenPriority">Use less nitrogen fertilizer</label>
+                <output id="nitrogenValue">3 / 5 · Moderate</output>
+              </div>
+              <input id="nitrogenPriority" type="range" min="1" max="5" value="3" />
+              <small>Prefer rotations that reduce purchased nitrogen.</small>
+            </div>
+
+            <div class="priority-block">
+              <div class="priority-head">
+                <label for="soilPriority">Protect my soil</label>
+                <output id="soilValue">3 / 5 · Moderate</output>
+              </div>
+              <input id="soilPriority" type="range" min="1" max="5" value="3" />
+              <small>Prefer rotations with better soil cover and protection.</small>
+            </div>
+
+            <div class="priority-block">
+              <div class="priority-head">
+                <label for="weatherPriority">Handle difficult weather</label>
+                <output id="weatherValue">3 / 5 · Moderate</output>
+              </div>
+              <input id="weatherPriority" type="range" min="1" max="5" value="3" />
+              <small>Prefer rotations that may be more resilient to stress.</small>
+            </div>
+          </section>
+
+          <!-- OPTIONAL HISTORY -->
+          <section class="form-section">
+            <details id="historyDetails" class="collapse-card">
+              <summary>
+                <div>
+                  <strong>Past crop history</strong>
+                  <small>Optional — what you actually grew before</small>
+                </div>
+                <span class="collapse-arrow">⌄</span>
+              </summary>
+
+              <div class="collapse-body">
+                <p class="section-copy">
+                  Add any past crop years you remember. If not, you can skip
+                  this section.
+                </p>
+
+                <div id="historyRows"></div>
+
+                <button type="button" id="addHistory" class="ghost-button">
+                  + Add a past crop
+                </button>
+              </div>
+            </details>
+          </section>
+
+          <!-- ADVANCED -->
+          <section class="form-section">
+            <details id="advancedOptions" class="collapse-card">
+              <summary>
+                <div>
+                  <strong>Advanced farm options</strong>
+                  <small>Optional — preferences, equipment and limits</small>
+                </div>
+                <span class="collapse-arrow">⌄</span>
+              </summary>
+
+              <div class="collapse-body">
+                <div class="form-group">
+                  <label>Crops you need to grow (optional)</label>
+                  <small>Leave blank if you have no required crops.</small>
+                  <div id="mustGrowOptions" class="check-grid"></div>
+                </div>
+
+                <div class="form-group">
+                  <label>Crops to avoid (optional)</label>
+                  <small>Leave blank if all listed crops are acceptable.</small>
+                  <div id="avoidOptions" class="check-grid"></div>
+                </div>
+
+                <div class="form-group">
+                  <label for="equipmentStatus">Available equipment</label>
+                  <select id="equipmentStatus">
+                    <option value="unspecified">Not specified</option>
+                    <option value="specified">I’ll select my available equipment</option>
+                  </select>
+
+                  <div id="equipmentGroup" class="check-grid" hidden>
+                    <label><input type="checkbox" name="equipment" value="row_planter" /> Row planter</label>
+                    <label><input type="checkbox" name="equipment" value="grain_drill" /> Grain drill</label>
+                    <label><input type="checkbox" name="equipment" value="combine" /> Combine</label>
+                    <label><input type="checkbox" name="equipment" value="sprayer" /> Sprayer</label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="inline-check">
+                    <input type="checkbox" id="enableNitrogen" />
+                    <span>Set a nitrogen fertilizer limit</span>
+                  </label>
+
+                  <div id="nitrogenGroup" hidden>
+                    <div class="form-group">
+                      <label for="nitrogenLimit">Maximum purchased nitrogen</label>
+                      <div class="input-with-unit">
+                        <input
+                          id="nitrogenLimit"
+                          type="number"
+                          min="0"
+                          step="any"
+                          placeholder="e.g. 120"
+                        />
+                        <span>kg N / ha / year</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="inline-check">
+                    <input type="checkbox" id="enableBudget" />
+                    <span>Set a maximum operating budget</span>
+                  </label>
+
+                  <div id="budgetGroup" hidden>
+                    <div class="form-group">
+                      <label for="budget">Maximum annual operating budget</label>
+                      <div class="input-with-unit">
+                        <input
+                          id="budget"
+                          type="number"
+                          min="0"
+                          step="any"
+                          placeholder="e.g. 2500"
+                        />
+                        <span>CAD / ha / year</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <div id="formMessage" role="alert" aria-live="polite" tabindex="-1"></div>
+        </form>
+      </div>
+
+      <aside class="workspace-side">
+        <div class="panel-card summary-card">
+          <div class="summary-card__header">
+            <p class="eyebrow">YOUR FARM SUMMARY</p>
+            <h2>Ready for comparison?</h2>
+          </div>
+
+          <div class="status-box" id="statusBox">
+            <span class="status-dot"></span>
+            <span id="statusText">Still missing a few details</span>
+          </div>
+
+          <div class="summary-list">
+            <div class="summary-item">
+              <span class="summary-label">Soil texture</span>
+              <span class="summary-value" id="summarySoil">Unknown</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Irrigation</span>
+              <span class="summary-value" id="summaryIrrigation">Unknown</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Rotation entries</span>
+              <span class="summary-value" id="summaryRotationCount">1 crop</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Planning horizon</span>
+              <span class="summary-value" id="summaryHorizon">4 years max</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Main priority</span>
+              <span class="summary-value" id="summaryPriority">Balanced</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Advanced constraints</span>
+              <span class="summary-value" id="summaryConstraints">None set</span>
+            </div>
+          </div>
+
+          <div class="summary-note">
+            Your farm profile will be used to compare possible rotations.
+            Unknown values remain clearly labeled as unknown or estimated.
+          </div>
+
+          <button type="submit" form="farmerForm" class="primary-button">
+            Compare my rotations ↗
+          </button>
+
+          <p class="sidebar-small-note">
+            Next: compare future crop rotations using NASA-derived climate data
+            and farm-specific inputs.
+          </p>
+        </div>
+
+        <div class="panel-card data-card">
+          <div class="data-card__row">
+            <div class="data-icon">☀</div>
+            <div>
+              <strong>NASA POWER</strong>
+              <p>Historical weather inputs for the rotation engine</p>
+            </div>
+          </div>
+
+          <div class="data-card__row">
+            <div class="data-icon">▦</div>
+            <div>
+              <strong>AAFC Crop Inventory</strong>
+              <p>Satellite-derived annual crop maps</p>
+            </div>
+          </div>
+
+          <div class="data-card__row">
+            <div class="data-icon">♣</div>
+            <div>
+              <strong>Ontario / FAO guides</strong>
+              <p>Crop, water and soil-management references</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="page-footer">
+      <p>
+        Educational decision support only — not a substitute for agronomic
+        advice. TerraShift compares options; it does not guarantee yield or
+        profitability outcomes.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

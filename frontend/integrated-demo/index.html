@@ -1,0 +1,936 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#244D3E">
+
+  <meta name="description"
+    content="TerraShift helps Ontario farmers compare climate-informed crop rotations.">
+
+  <title>TerraShift | Plan for the Season Ahead</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css"
+  >
+
+  <link rel="stylesheet" href="./styles.css">
+
+  <script
+    defer
+    src="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js">
+  </script>
+
+  <script defer src="./config.js"></script>
+  <script defer src="./app.js"></script>
+  <script defer src="./farm-form.js"></script>
+  <script defer src="./results.js"></script>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="TerraShift home">
+      <span class="brand-mark">✳</span>
+      <span>TerraShift</span>
+    </a>
+
+    <div class="header-subtitle">Ontario farm planning</div>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      <a class="nav-active" href="#explore">Explore</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#data-sources">Our data</a>
+      <span class="province-tag">Ontario, Canada</span>
+    </nav>
+  </header>
+
+  <main id="top">
+
+    <!-- HERO -->
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content container">
+        <p class="hero-eyebrow">
+          CLIMATE-SMART CROP ROTATION PLANNING
+        </p>
+
+        <h1 id="hero-title">
+          Start with your field.
+          <span>Plan for the season ahead.</span>
+        </h1>
+
+        <p>
+          Choose your farm, tell us what you grow,
+          and explore climate-informed crop rotation
+          options in plain language.
+        </p>
+
+        <a href="#explore" class="button button-gold">
+          Find your farm
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- THREE STEPS -->
+
+    <section
+      class="intro container"
+      id="how-it-works"
+      aria-label="How TerraShift works"
+    >
+      <div>
+        <span class="step-count">01</span>
+        <span>
+          <strong>Find your farm</strong>
+          <small>Search or choose it on the map</small>
+        </span>
+      </div>
+
+      <div>
+        <span class="step-count">02</span>
+        <span>
+          <strong>Tell us about it</strong>
+          <small>Soil, water and crops you grow</small>
+        </span>
+      </div>
+
+      <div>
+        <span class="step-count">03</span>
+        <span>
+          <strong>Explore your options</strong>
+          <small>Compare future crop rotations</small>
+        </span>
+      </div>
+    </section>
+
+    <!-- MAP AND FARM INPUTS -->
+
+    <section
+      class="workspace container"
+      id="explore"
+      aria-labelledby="explore-title"
+    >
+
+      <!-- LEFT: MAP -->
+
+      <div class="map-panel panel">
+
+        <div class="map-panel-header">
+          <div class="eyebrow">
+            01 / EXPLORE YOUR REGION
+          </div>
+
+          <h2 id="explore-title">Find your farm</h2>
+
+          <p>
+            Search for an Ontario address, town or postal code,
+            or simply click your location on the map.
+          </p>
+
+          <form
+            id="search-form"
+            class="search-row"
+            role="search"
+          >
+            <label for="search-input" class="sr-only">
+              Ontario address, town or postal code
+            </label>
+
+            <span class="search-icon" aria-hidden="true">
+              ⌕
+            </span>
+
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Search address, town, or postal code"
+              autocomplete="street-address"
+              maxlength="180"
+              required
+            >
+
+            <button
+              class="button search-button"
+              type="submit"
+              id="search-button"
+            >
+              Search
+            </button>
+          </form>
+
+          <div class="search-support">
+            <span
+              id="search-message"
+              role="status"
+              aria-live="polite"
+            >
+              Try "Guelph, Ontario" or select a point on the map.
+            </span>
+
+            <button
+              id="my-location"
+              class="text-button"
+              type="button"
+            >
+              ◎ Use my location
+            </button>
+          </div>
+        </div>
+
+        <div class="map-frame">
+
+          <div
+            id="map"
+            role="application"
+            aria-label="Interactive Ontario farm location map"
+          ></div>
+
+          <div class="map-style-switch" aria-label="Map style">
+            <button
+              type="button"
+              data-map-style="street"
+              class="map-style-btn selected"
+            >
+              Map
+            </button>
+
+            <button
+              type="button"
+              data-map-style="light"
+              class="map-style-btn"
+            >
+              Light
+            </button>
+          </div>
+
+          <div class="map-top-note">
+            Click a field to select its location
+          </div>
+
+          <div
+            id="tile-loading"
+            class="tile-loading"
+            role="status"
+            aria-live="polite"
+            hidden
+          >
+            Loading map...
+          </div>
+
+          <div
+            id="map-status"
+            class="map-status"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></div>
+
+        </div>
+
+        <div class="map-footer">
+          <span>
+            OpenFreeMap basemap · Field locations are approximate
+            until verified on the ground.
+          </span>
+
+          <a
+            href="https://openfreemap.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            About OpenFreeMap ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- RIGHT: FARM INPUTS -->
+
+      <aside
+        class="farm-panel panel"
+        aria-labelledby="farm-title"
+      >
+
+        <div class="farm-panel-title">
+          <span class="farm-icon">✳</span>
+
+          <div>
+            <span class="eyebrow">YOUR FARM LOCATION</span>
+            <h2 id="farm-title">Your selected farm</h2>
+          </div>
+        </div>
+
+        <div
+          class="selected-location"
+          id="location-name"
+        >
+          <span class="location-indicator">●</span>
+          No location selected yet
+        </div>
+
+        <div class="farm-quick-note">
+          Choose a location on the map to tailor
+          your historical weather comparison.
+        </div>
+
+        <!-- LOCATION DETAILS -->
+
+        <details class="data-detail-collapse">
+          <summary>
+            Location &amp; data details
+            <span aria-hidden="true">⌄</span>
+          </summary>
+
+          <div class="detail-list">
+            <div class="detail-row">
+              <span>Coordinates</span>
+              <strong id="coordinates">—</strong>
+            </div>
+
+            <div class="detail-row">
+              <span>Regional climate reference</span>
+              <strong id="nearest-anchor">
+                NASA POWER grid (on selection)
+              </strong>
+            </div>
+
+            <div class="detail-row">
+              <span>Distance to reference</span>
+              <strong id="anchor-distance">—</strong>
+            </div>
+          </div>
+
+          <div id="anchor-note" class="info-callout">
+            <span aria-hidden="true">ⓘ</span>
+            <span>
+              Your location links this form to regional climate
+              information, not on-farm measurements.
+            </span>
+          </div>
+        </details>
+
+        <div class="farm-actions map-actions">
+          <button
+            class="button button-outline"
+            id="reset-button"
+            type="button"
+          >
+            ↻ Reset location
+          </button>
+
+          <button
+            class="button button-primary"
+            id="continue-button"
+            type="button"
+            disabled
+          >
+            Farm details ↓
+          </button>
+        </div>
+
+        <div
+          id="integration-note"
+          class="integration-note"
+          hidden
+          role="status"
+        ></div>
+
+        <div class="farm-divider"></div>
+
+        <!-- FARMER FORM -->
+
+        <div class="sidebar-section-head">
+          <div class="eyebrow">
+            02 / TELL US ABOUT YOUR FARM
+          </div>
+
+          <h3>What do you grow?</h3>
+
+          <p>
+            Start with your usual rotation.
+            We'll compare it to alternatives.
+          </p>
+        </div>
+
+        <form id="farmerForm" novalidate>
+
+          <div class="form-field">
+            <label for="rotationStartYear">
+              First planning year
+            </label>
+
+            <input
+              id="rotationStartYear"
+              type="number"
+              min="2000"
+              max="2100"
+              step="1"
+              value="2027"
+            >
+          </div>
+
+          <!--
+            Crop rows are created automatically by farm-form.js.
+            Each row must contain:
+            - Crop
+            - Growing year
+            - Planting date
+            - Harvest date
+          -->
+
+          <div
+            id="rotationRows"
+            class="rotation-rows"
+          ></div>
+
+          <button
+            type="button"
+            class="add-row-button"
+            id="addCrop"
+          >
+            + Add a crop
+          </button>
+
+          <p
+            class="farm-helper"
+            id="rotationInfo"
+          ></p>
+
+          <div class="farm-divider"></div>
+
+          <!-- SOIL AND IRRIGATION -->
+
+          <div class="sidebar-section-head">
+            <h3>Your field</h3>
+            <p>
+              It's fine if you don't know every detail.
+            </p>
+          </div>
+
+          <div class="form-field">
+            <label for="soil">Soil type</label>
+
+            <select id="soil">
+              <option value="unknown">I'm not sure</option>
+              <option value="sandy">Sandy</option>
+              <option value="sandy_loam">Sandy loam</option>
+              <option value="loam">Loam</option>
+              <option value="silt_loam">Silt loam</option>
+              <option value="clay_loam">Clay loam</option>
+              <option value="clay">Clay</option>
+            </select>
+          </div>
+
+          <fieldset class="radio-field">
+            <legend>
+              Do you irrigate this field?
+            </legend>
+
+            <label>
+              <input
+                name="irrigation"
+                type="radio"
+                value="no"
+                checked
+              >
+              No — rainfed
+            </label>
+
+            <label>
+              <input
+                name="irrigation"
+                type="radio"
+                value="yes"
+              >
+              Yes
+            </label>
+
+            <label>
+              <input
+                name="irrigation"
+                type="radio"
+                value="unknown"
+              >
+              Not sure
+            </label>
+          </fieldset>
+
+          <div
+            id="irrigationDetails"
+            class="conditional-panel"
+            hidden
+          >
+
+            <div class="form-field">
+              <label for="waterLimit">
+                Irrigation water limit
+              </label>
+
+              <select id="waterLimit">
+                <option value="unknown">
+                  I don't know my limit
+                </option>
+
+                <option value="known">
+                  I know the amount
+                </option>
+
+                <option value="unspecified">
+                  No specified limit
+                </option>
+              </select>
+            </div>
+
+            <div
+              id="capacityGroup"
+              class="form-field"
+              hidden
+            >
+              <label for="capacity">
+                Water available per season
+              </label>
+
+              <div class="compact-row">
+                <input
+                  id="capacity"
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="e.g. 150"
+                >
+
+                <select
+                  id="capacityUnit"
+                  aria-label="Water units"
+                >
+                  <option value="mm_per_season">
+                    mm / season
+                  </option>
+
+                  <option value="m3_per_ha_per_season">
+                    m³ / ha / season
+                  </option>
+                </select>
+              </div>
+
+              <small>
+                1 mm = 10 m³ per hectare.
+              </small>
+            </div>
+          </div>
+
+          <!-- PRIORITIES -->
+
+          <details
+            class="farm-accordion"
+            id="prioritiesDetails"
+          >
+            <summary>
+              What matters most to you?
+              <span>Optional</span>
+            </summary>
+
+            <div class="accordion-inner">
+              <p class="farm-helper">
+                All priorities are balanced by default.
+                These preferences help organize comparisons.
+              </p>
+
+              <div class="priority-row">
+                <label for="waterPriority">
+                  Save water
+                </label>
+
+                <output id="waterValue">3 / 5</output>
+
+                <input
+                  type="range"
+                  id="waterPriority"
+                  min="1"
+                  max="5"
+                  value="3"
+                >
+              </div>
+
+              <div class="priority-row">
+                <label for="soilPriority">
+                  Protect soil
+                </label>
+
+                <output id="soilValue">3 / 5</output>
+
+                <input
+                  type="range"
+                  id="soilPriority"
+                  min="1"
+                  max="5"
+                  value="3"
+                >
+              </div>
+
+              <div class="priority-row">
+                <label for="weatherPriority">
+                  Handle difficult weather
+                </label>
+
+                <output id="weatherValue">3 / 5</output>
+
+                <input
+                  type="range"
+                  id="weatherPriority"
+                  min="1"
+                  max="5"
+                  value="3"
+                >
+              </div>
+            </div>
+          </details>
+
+          <!-- ADVANCED FARM OPTIONS -->
+
+          <details
+            class="farm-accordion"
+            id="advancedOptions"
+          >
+            <summary>
+              More farm options
+              <span>Optional</span>
+            </summary>
+
+            <div class="accordion-inner">
+
+              <div class="form-field">
+                <label>Crops you need to grow</label>
+
+                <small>
+                  Leave all unchecked if none.
+                </small>
+
+                <div
+                  id="mustGrowOptions"
+                  class="mini-check-grid"
+                ></div>
+              </div>
+
+              <div class="form-field">
+                <label>Crops to avoid</label>
+
+                <small>
+                  Leave all unchecked if none.
+                </small>
+
+                <div
+                  id="avoidOptions"
+                  class="mini-check-grid"
+                ></div>
+              </div>
+
+              <div class="form-field">
+                <label for="drainage">
+                  Tile drainage
+                </label>
+
+                <select id="drainage">
+                  <option value="unknown">Not sure</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="slope">
+                  Field slope
+                </label>
+
+                <select id="slope">
+                  <option value="unknown">Not sure</option>
+                  <option value="flat">Mostly flat</option>
+                  <option value="gentle">Gently sloping</option>
+                  <option value="steep">Steep</option>
+                </select>
+              </div>
+
+              <label class="plain-check">
+                <input
+                  id="enableBudget"
+                  type="checkbox"
+                >
+                Set an operating budget
+              </label>
+
+              <div
+                id="budgetGroup"
+                class="form-field"
+                hidden
+              >
+                <label for="budget">
+                  Budget (CAD/ha/year)
+                </label>
+
+                <input
+                  id="budget"
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="e.g. 2500"
+                >
+
+                <small>
+                  Cost feasibility is not computed in this demo.
+                </small>
+              </div>
+
+            </div>
+          </details>
+
+          <!-- OPTIONAL CROP HISTORY -->
+
+          <details
+            class="farm-accordion"
+            id="historyDetails"
+          >
+            <summary>
+              Past crop history
+              <span>Optional</span>
+            </summary>
+
+            <div class="accordion-inner">
+              <p class="farm-helper">
+                What did you actually grow in past years?
+                You can skip this section.
+              </p>
+
+              <div id="historyRows"></div>
+
+              <button
+                type="button"
+                id="addHistory"
+                class="add-row-button"
+              >
+                + Add past crop
+              </button>
+            </div>
+          </details>
+
+          <!-- VALIDATION -->
+
+          <div
+            id="formMessage"
+            class="form-message"
+            role="alert"
+            aria-live="polite"
+            tabindex="-1"
+          ></div>
+
+          <!-- COMPARE BUTTON -->
+
+          <div class="sticky-compare">
+            <button
+              type="submit"
+              id="compareButton"
+              class="button button-primary compare-main"
+              disabled
+            >
+              Choose a field first →
+            </button>
+
+            <p>
+              NASA climate comparison · regional estimates
+            </p>
+          </div>
+
+        </form>
+
+      </aside>
+    </section>
+
+    <!-- RESULTS PAGE -->
+
+    <section
+      class="results-panel container"
+      id="results"
+      aria-labelledby="results-title"
+      hidden
+    >
+
+      <div class="results-heading">
+        <div>
+          <div class="eyebrow">
+            03 / EXPLORE YOUR OPTIONS
+          </div>
+
+          <h2 id="results-title">
+            What could you grow next?
+          </h2>
+
+          <p id="results-subtitle">
+            Compare alternatives against your own rotation.
+          </p>
+        </div>
+
+        <div
+          class="results-state"
+          id="results-state"
+        >
+          Waiting for data
+        </div>
+      </div>
+
+      <div
+        id="results-message"
+        class="results-message"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+      <!-- WEATHER SCENARIOS -->
+
+      <div class="results-toolbar">
+        <div
+          class="scenario-options"
+          aria-label="Weather scenario"
+        >
+          <button
+            type="button"
+            class="scenario-selected"
+            id="weather-typical"
+          >
+            Historical seasons
+          </button>
+
+          <button
+            type="button"
+            id="weather-dry"
+          >
+            Drier historical seasons
+          </button>
+
+          <button
+            type="button"
+            id="weather-future"
+            disabled
+            title="Requires processed NEX-GDDP-CMIP6 data"
+          >
+            2050s · coming soon
+          </button>
+        </div>
+
+        <span id="source-years">
+          NASA POWER · daily data
+        </span>
+      </div>
+
+      <!-- RESULTS CONTENT -->
+
+      <div
+        id="metrics-bar"
+        class="metrics-bar"
+      ></div>
+
+      <div
+        id="comparison-cards"
+        class="comparison-cards"
+      ></div>
+
+      <!-- METHODS -->
+
+      <details class="results-methods">
+        <summary>
+          How were these estimates calculated?
+        </summary>
+
+        <div id="methods-text"></div>
+      </details>
+
+    </section>
+
+    <!-- DATA SOURCES -->
+
+    <section
+      class="data-strip container"
+      id="data-sources"
+      aria-labelledby="sources-title"
+    >
+
+      <div class="data-heading">
+        <div class="data-icon">▱</div>
+        <h2 id="sources-title">
+          Powered by public data
+        </h2>
+      </div>
+
+      <div class="data-item">
+        <div class="source-symbol nasa">☼</div>
+
+        <div>
+          <strong>NASA POWER</strong>
+          <small>
+            Daily historical weather for comparative screening
+          </small>
+        </div>
+      </div>
+
+      <div class="data-item">
+        <div class="source-symbol">▦</div>
+
+        <div>
+          <strong>OpenFreeMap</strong>
+          <small>
+            OpenStreetMap-based interactive farm location map
+          </small>
+        </div>
+      </div>
+
+      <div class="data-item">
+        <div class="source-symbol">♧</div>
+
+        <div>
+          <strong>Ontario / FAO guides</strong>
+          <small>
+            Crop, water and soil-management reference methods
+          </small>
+        </div>
+      </div>
+
+    </section>
+
+    <p class="disclaimer container">
+      Educational decision support only — not a soil test
+      or substitute for agronomic advice.
+      Map coordinates and regional climate data
+      are not verified field measurements.
+    </p>
+
+    <footer class="footer container">
+      <span>
+        TerraShift · Designed for Ontario farms
+      </span>
+
+      <button
+        type="button"
+        id="print-button"
+        class="text-button"
+      >
+        Print this page ↗
+      </button>
+    </footer>
+
+  </main>
+
+</body>
+</html>
