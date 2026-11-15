@@ -1,0 +1,7 @@
+{
+  "_readme": "Available water per metre of soil (mm/m) = 1000 x (field capacity - wilting point), from the AquaCrop soil presets (FAO AquaCrop, aquacrop python package v3.1.0, aquacrop/entities/soil.py). These are typical textbook values, not site measurements. Cross-check against FAO-56 Table 19 or OMAFRA/AAFC data if a better source is found.",
+  "sandy_loam": {"label": "Sandy loam", "wilting_point": 0.10, "field_capacity": 0.22, "available_water_mm_per_m": 120, "sources": ["aquacrop"], "data_quality": "limited"},
+  "loam": {"label": "Loam", "wilting_point": 0.15, "field_capacity": 0.31, "available_water_mm_per_m": 160, "sources": ["aquacrop"], "data_quality": "limited"},
+  "clay_loam": {"label": "Clay loam", "wilting_point": 0.23, "field_capacity": 0.39, "available_water_mm_per_m": 160, "sources": ["aquacrop"], "data_quality": "limited"},
+  "clay": {"label": "Clay", "wilting_point": 0.39, "field_capacity": 0.54, "available_water_mm_per_m": 150, "sources": ["aquacrop"], "data_quality": "limited"}
+}

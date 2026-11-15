@@ -1,0 +1,28 @@
+{
+  "_readme": "Qualitative rotation rules. 'status: needs_citation' means the rule is standard agronomy but has not yet been tied to a specific OMAFRA page. min_gap_years = years that must pass before the same crop returns to a field (0 = may repeat). Pest-break notes feed the pest-break rating. Cover crops are handled separately under cover_crops.",
+  "min_gap_years": {
+    "corn": {"value": 0, "note": "Corn after corn is allowed but flagged: higher rootworm and disease pressure, lower yield.", "flag_if_repeated": true, "sources": ["team_assumption"], "status": "needs_citation"},
+    "soybean": {"value": 2, "note": "Frequent soybean raises soybean cyst nematode and disease risk.", "flag_if_repeated": true, "sources": ["team_assumption"], "status": "needs_citation"},
+    "winter_wheat": {"value": 1, "note": "Wheat after wheat raises disease risk (e.g. take-all).", "flag_if_repeated": true, "sources": ["team_assumption"], "status": "needs_citation"},
+    "red_clover": {"value": 1, "note": "Short repeat intervals raise disease build-up in clover.", "flag_if_repeated": true, "sources": ["team_assumption"], "status": "needs_citation"},
+    "cereal_rye": {"value": 0, "note": "Cover crop; repeating is fine.", "flag_if_repeated": false, "sources": ["team_assumption"], "status": "needs_citation"}
+  },
+  "disallowed_successions": [
+    {"from": "winter_wheat", "to": "winter_wheat", "reason": "Repeated wheat: disease build-up.", "severity": "avoid", "sources": ["team_assumption"], "status": "needs_citation"}
+  ],
+  "legume_credit": {
+    "rule": "If the previous year's crop was a legume and the current crop is not, drop the current crop's nitrogen-demand class by one level (high -> medium -> low).",
+    "legumes": ["soybean", "red_clover"],
+    "sources": ["team_assumption"],
+    "status": "needs_citation"
+  },
+  "cover_crops": {
+    "cereal_rye": {"follows": ["corn", "soybean", "winter_wheat"], "note": "Planted after harvest, before the next spring crop.", "sources": ["team_assumption"], "status": "needs_citation"},
+    "red_clover": {"underseeded_in": ["winter_wheat"], "note": "Underseeded into winter wheat in early spring, then terminated before the next crop.", "sources": ["team_assumption"], "status": "needs_citation"}
+  },
+  "pest_break": {
+    "corn": {"after_corn": "worse", "after_soybean": "better", "note": "Breaks the rootworm cycle after a non-corn year.", "status": "needs_citation"},
+    "soybean": {"after_soybean": "worse", "after_corn": "better", "note": "Cereals and corn break soybean cyst nematode cycles.", "status": "needs_citation"},
+    "winter_wheat": {"after_corn": "worse", "after_soybean": "better", "note": "Wheat after corn raises fusarium risk from corn residue.", "status": "needs_citation"}
+  }
+}
