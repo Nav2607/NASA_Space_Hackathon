@@ -15,9 +15,7 @@
       const label = document.createElement('label'); label.htmlFor = `rotation-${index}`; label.textContent = `Year ${index + 1}`;
       const select = document.createElement('select'); select.id = label.htmlFor;
       crops.forEach(([id, name]) => select.add(new Option(name, id)));
-      const covers=document.createElement('optgroup');covers.label='Cover crops · not modeled yet';
-      for(const [id,name] of [['red_clover','Red clover'],['cereal_rye','Cereal rye']]){const option=new Option(name+' — unavailable',id);option.disabled=true;covers.append(option);}
-      select.append(covers);select.value = crop;
+      select.value = crop;
       select.addEventListener('change', () => { rotation[index] = select.value; });
       const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'link-danger';
       remove.textContent = 'Remove'; remove.setAttribute('aria-label', `Remove rotation year ${index + 1}`); remove.disabled = rotation.length === 1;
