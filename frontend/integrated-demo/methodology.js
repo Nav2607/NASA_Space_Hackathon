@@ -1,10 +1,10 @@
 /* Explain a small snapshot of the real API response; no simulations or new scoring. */
 (() => {
   'use strict';
-  const F=window.FieldShift,host=document.getElementById('analysis-snapshot');
+  const F=window.Agronaut,host=document.getElementById('analysis-snapshot');
   const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;};
   let context=null;
-  try{const hash=new URLSearchParams(location.hash.slice(1)).get('report');context=hash?JSON.parse(hash):JSON.parse(sessionStorage.getItem('fieldshift-methodology')||'null');}catch{}
+  try{const hash=new URLSearchParams(location.hash.slice(1)).get('report');context=hash?JSON.parse(hash):JSON.parse(sessionStorage.getItem('agronaut-methodology')||'null');}catch{}
   if(!context||context.version!==3||!context.available){host.append(el('p','small-note','Open “How did we model this?” from a completed analysis to see its actual weights and comparison values here. No example results are substituted.'));return;}
   host.append(el('h3','',`Your analysis snapshot · ${context.anchor||'regional input'} · ${context.period}`));
   host.append(el('p','small-note',`Soil preset: ${(context.soil||'unavailable').replaceAll('_',' ')} · modeled available-water capacity ${F.format(context.capacity_mm)} mm at the fixed 1 m depth. These are model assumptions, not field measurements.`));

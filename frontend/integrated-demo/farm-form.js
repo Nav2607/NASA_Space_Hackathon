@@ -7,7 +7,7 @@
   let rotation = ['corn', 'soybean'];
   const form = $('farmerForm');
   const checked = name => [...form.querySelectorAll(`input[name="${name}"]:checked`)].map(x => x.value);
-  const changed = () => window.dispatchEvent(new Event('terrashift:inputs-changed'));
+  const changed = () => window.dispatchEvent(new Event('agronaut:inputs-changed'));
   function renderRotation() {
     $('rotationRows').replaceChildren();
     rotation.forEach((crop, index) => {
@@ -39,10 +39,10 @@
     $(`${key}Priority`).addEventListener('input', () => { $(`${key}Value`).textContent = `${$(`${key}Priority`).value} / 5`; });
   }
   form.addEventListener('input', changed); form.addEventListener('change', changed);
-  window.addEventListener('terrashift:location-changed', e => {
+  window.addEventListener('agronaut:location-changed', e => {
     selectedLocation = e.detail; $('compareButton').disabled = false; $('compareButton').textContent = 'Compare my rotation →';
   });
-  window.addEventListener('terrashift:location-cleared', () => {
+  window.addEventListener('agronaut:location-cleared', () => {
     selectedLocation = null; $('compareButton').disabled = true; $('compareButton').textContent = 'Choose a location first';
   });
   form.addEventListener('submit', e => {
@@ -63,8 +63,8 @@
       priorities: {water: Number($('waterPriority').value), nitrogen: Number($('nitrogenPriority').value),
         soilCover: Number($('soilPriority').value), weatherRisk: Number($('weatherPriority').value)}
     };
-    window.terraShiftFarmData = farmData;
-    window.dispatchEvent(new CustomEvent('terrashift:compare', {detail: farmData}));
+    window.agronautFarmData = farmData;
+    window.dispatchEvent(new CustomEvent('agronaut:compare', {detail: farmData}));
   });
   renderRotation();
 })();

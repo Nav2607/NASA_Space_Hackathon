@@ -102,6 +102,6 @@
     return reason || 'The current rotation cannot be evaluated with the available model inputs.';
   }
   const api = {crops, finite, format, delta, change, sequence, request, periodRows, weekTiming, weeklyView, recommendedIndex, baselineNotice, cycleView, flagBands};
-  root.FieldShift = api;
+  root.Agronaut = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);

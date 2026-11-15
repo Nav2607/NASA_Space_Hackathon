@@ -1,4 +1,4 @@
-# Field Shift Canada — future-focused frontend
+# Agronaut — future-focused frontend
 
 Implementation branch: `frontend-dashboard-enhancement`, based on `origin/frontend`.
 The backend is **unchanged**, running in a detached worktree at merge `641b6f2`.

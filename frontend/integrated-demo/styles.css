@@ -111,8 +111,8 @@
 [hidden]{display:none!important}
 
 /* OpenFreeMap / MapLibre lightweight map markers */
-.terrashift-selected-marker{width:21px;height:21px;border:3px solid white;border-radius:50%;background:#c7a56b;box-shadow:0 2px 7px #1e352c66;}
-.terrashift-anchor-marker{width:12px;height:12px;border:2px solid #fff;border-radius:50%;background:#244d3e;box-shadow:0 1px 5px #1e352c66;}
+.agronaut-selected-marker{width:21px;height:21px;border:3px solid white;border-radius:50%;background:#c7a56b;box-shadow:0 2px 7px #1e352c66;}
+.agronaut-anchor-marker{width:12px;height:12px;border:2px solid #fff;border-radius:50%;background:#244d3e;box-shadow:0 1px 5px #1e352c66;}
 .map-frame .maplibregl-map{font-family:inherit;}
 .map-frame .maplibregl-ctrl-attrib{font-size:10px;}
 

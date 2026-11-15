@@ -1,8 +1,8 @@
 /* Future-focused presentation; all scientific results and recommendation scores come from the existing API. */
 (() => {
   'use strict';
-  const $=id=>document.getElementById(id),F=window.FieldShift;
-  const baseURL=(window.TERRASHIFT_CONFIG?.apiBase||'http://127.0.0.1:8000').replace(/\/$/,'');
+  const $=id=>document.getElementById(id),F=window.Agronaut;
+  const baseURL=(window.AGRONAUT_CONFIG?.apiBase||'http://127.0.0.1:8000').replace(/\/$/,'');
   const state={body:null,data:null,climate:'future',selected:0,recommended:null,epoch:0,blindEpoch:0,model:0,phase:0,cycle:1,year:null,weeks:{},blind:null,blindBaseline:null,available:false};
   const cache=new Map(),controllers=new Set();
   const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;};
@@ -18,11 +18,11 @@
   function invalidate(){
     state.epoch++;state.blindEpoch++;state.body=null;state.data=null;state.blind=null;state.blindBaseline=null;state.available=false;
     controllers.forEach(c=>c.abort());controllers.clear();cache.clear();
-    try{sessionStorage.removeItem('fieldshift-methodology');}catch{}
+    try{sessionStorage.removeItem('agronaut-methodology');}catch{}
     if(!$('results').hidden){$('dashboard-content').hidden=true;$('results-state').textContent='Inputs changed';message('Compare again to update the recommendation for your new inputs.');}
-    $('results').removeAttribute('aria-busy');$('blind-content').removeAttribute('aria-busy');$('compareButton').disabled=!window.TerraShiftSelectedLocation;
+    $('results').removeAttribute('aria-busy');$('blind-content').removeAttribute('aria-busy');$('compareButton').disabled=!window.AgronautSelectedLocation;
   }
-  ['terrashift:inputs-changed','terrashift:location-changed','terrashift:location-cleared'].forEach(name=>window.addEventListener(name,invalidate));
+  ['agronaut:inputs-changed','agronaut:location-changed','agronaut:location-cleared'].forEach(name=>window.addEventListener(name,invalidate));
   async function api(path,body){
     const key=path+JSON.stringify(body);if(cache.has(key))return cache.get(key);
     const controller=new AbortController();controllers.add(controller);const timer=setTimeout(()=>controller.abort(),90000);
@@ -45,7 +45,7 @@
       constraints:state.body?{must:state.body.must_include,avoid:state.body.avoid,equipment:state.body.equipment}:null};
     const snapshot=JSON.stringify(context);
     $('methodology-link').href='./methodology.html#'+new URLSearchParams({report:snapshot}).toString();
-    try{sessionStorage.setItem('fieldshift-methodology',snapshot);}catch{}
+    try{sessionStorage.setItem('agronaut-methodology',snapshot);}catch{}
   }
   function drawLeaderboard(){
     const host=$('comparison-cards');host.replaceChildren();
@@ -219,7 +219,7 @@
     catch(error){if(epoch===state.epoch){$('results-state').textContent='Unavailable';message(error.message,true);}}
     finally{if(epoch===state.epoch){$('results').removeAttribute('aria-busy');$('compareButton').disabled=false;}}
   }
-  window.addEventListener('terrashift:compare',event=>{
+  window.addEventListener('agronaut:compare',event=>{
     invalidate();try{state.body=F.request(event.detail);state.model=0;state.phase=0;state.cycle=1;state.weeks={};recommend();$('results').hidden=false;$('results').scrollIntoView({behavior:'smooth',block:'start'});}
     catch(error){$('results').hidden=false;message(error.message,true);}
   });
