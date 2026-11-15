@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field, ConfigDict
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from engine import recommend as R                       # noqa: E402
+from engine.blind_spots import blind_spots as run_blind_spots  # noqa: E402
 from engine.weather import DATA_DIR, load_reference     # noqa: E402
 
 app = FastAPI(title="Field Shift Canada API", version="0.1.0",
@@ -47,6 +48,10 @@ class RecommendRequest(BaseModel):
     priorities: Priorities = Priorities()
     climate_period: Literal["historical", "future"] = "historical"
     allow_cover_crops: bool = False
+
+
+class BlindSpotsRequest(RecommendRequest):
+    historical_period: Literal["2005_2024", "2005_2014", "2015_2024"] = "2005_2024"
 
 
 @app.get("/health")
@@ -100,6 +105,15 @@ def recommend(req: RecommendRequest):
     body = req.model_dump()
     try:
         return R.recommend(body)
+    except R.InputError as err:
+        raise HTTPException(status_code=422, detail=str(err))
+
+
+@app.post("/blind-spots")
+def blind_spots(req: BlindSpotsRequest):
+    """Daily screening for one supplied rotation; no recommendation generation."""
+    try:
+        return run_blind_spots(req.model_dump())
     except R.InputError as err:
         raise HTTPException(status_code=422, detail=str(err))
 
