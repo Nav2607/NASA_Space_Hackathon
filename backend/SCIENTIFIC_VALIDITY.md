@@ -166,7 +166,9 @@ null relative demand percentage rather than an invented 100%.
 objects: independent crop summaries must not be presented as chronological
 rotation results. Use period/phase/annual results from `time_machine`. Daily
 water/calendar diagnostics are available from the engine's `return_daily=True`
-mode for testing and later Blind Spots contract work; there is no fabricated
+mode and now through `POST /blind-spots`; see
+[BLIND_SPOTS_API.md](BLIND_SPOTS_API.md) for the daily/event contract and count
+aggregation. This endpoint only screens existing flags; there is no fabricated
 rainfall-exposure or erosion metric.
 
 ## Remaining scientific limitations
@@ -182,8 +184,8 @@ rainfall-exposure or erosion metric.
 - POWER precipitation is the explicitly labeled fallback; GPM is not added.
 - Local crop calendars, critical-stage thresholds and some compatibility rules
   need stronger Ontario-specific sourcing. Regional output is not validation.
-- Full daily Blind Spots frontend outputs, residue/protective-cover fractions
-  and rainfall-exposure indicators still require a separate agreed contract.
+- Minimal daily Blind Spots screening is exposed; residue/protective-cover
+  fractions and rainfall-exposure indicators remain deferred.
 
 Physical invariants and explicit data availability are tested; passing tests is
 not field validation. Do not claim yield, crop survival, measured savings or a
@@ -250,6 +252,6 @@ Files changed/added for review:
 Readiness: the corrected baseline, constrained recommendation and Time Machine
 API contracts are ready for frontend wiring with these limitations displayed.
 No climate-data blocker remains for these anchors/scenario. Full dashboard
-completion still needs the daily Blind Spots/rainfall-exposure contract, and
+completion still needs frontend Blind Spots wiring and defensible rainfall-exposure inputs, and
 scientific refinements above remain necessary before agronomic or field-level
 claims. A JavaScript migration remains outside this user-authorized correction.

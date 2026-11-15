@@ -14,7 +14,8 @@ This checklist records the SMAP scope decision; it does not change other milesto
 - [x] Complete and verify the exact 2031–2050 NEX cache for all 12 anchors and three models; older caches retained, with explicit unavailable-data behavior tested.
 - [x] Run final scientific, API and data-preservation checks: 73 tests pass; all-anchor/four-soil historical physical checks and all-anchor/three-model future smoke checks pass.
 - [ ] Future scientific refinement: defensible bare-soil/offseason evaporation, snow/frozen-soil treatment, Ontario calendar/compatibility citations and cover-crop demand inputs.
-- [ ] Agree the remaining daily Blind Spots and rainfall-exposure frontend contract; retain explicit model limitations.
+- [x] Minimal daily Blind Spots API: existing diagnostic flags, consecutive exposure events, per-phase/model counts and explicit delta-weather/approximate-screening labels. Contract: [BLIND_SPOTS_API.md](backend/BLIND_SPOTS_API.md).
+- [ ] Protective ground-cover and rainfall-exposure parameters/contract remain deferred; no erosion or crop-damage claims.
 
 Current method and frontend migration notes: [SCIENTIFIC_VALIDITY.md](backend/SCIENTIFIC_VALIDITY.md).
 
