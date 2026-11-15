@@ -130,3 +130,10 @@
 .ts-details summary{cursor:pointer;font-weight:700;color:var(--forest)}
 .ts-details ul{padding-left:18px;line-height:1.55}
 .ts-no-alts{grid-column:1/-1;background:#f3ebd7;border-radius:12px;padding:16px;font-size:13px;color:#5b5943}
+
+/* Layout fix: the form column is much taller than the map column, which left a big empty block
+   under the map. Keep the map card in view while the form scrolls and let the map use the height. */
+.workspace{align-items:start}
+.map-panel{position:sticky;top:16px;align-self:start}
+.map-frame{height:clamp(440px,calc(100vh - 300px),760px)}
+@media(max-width:800px){.map-panel{position:static}.map-frame{height:440px}}
