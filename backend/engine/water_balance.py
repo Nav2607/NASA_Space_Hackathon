@@ -16,6 +16,7 @@ import pandas as pd
 
 from . import crop_water
 
+SEVERE_KS = 0.5                    # ASSUMED: a "severe stress day" is one where the crop can only use under half its demand
 SEVERE_SHORTFALL_FRACTION = 0.25   # ASSUMED: season counts as water-failed above this share of ETc unmet
 HOT_DAY_C = 30.0                   # ASSUMED: generic "hot day" marker, not a crop-specific threshold
 
@@ -32,6 +33,7 @@ def run_bucket(etc, rain, taw, p, start_full=True):
     n = len(etc)
     store_after = np.empty(n)
     eta = np.empty(n)
+    ks_out = np.ones(n)
     stressed = np.zeros(n, dtype=bool)
     for i in range(n):
         store = min(store + rain[i], taw)
@@ -41,10 +43,11 @@ def run_bucket(etc, rain, taw, p, start_full=True):
             ks = max(store / (taw - raw), 0.0) if taw > raw else 0.0
         else:
             ks = 1.0
+        ks_out[i] = ks
         eta[i] = min(ks * etc[i], store)
         store -= eta[i]
         store_after[i] = store
-    return {"store": store_after, "eta": eta, "stressed": stressed}
+    return {"store": store_after, "eta": eta, "stressed": stressed, "ks": ks_out}
 
 
 def season_dates(crop, year):
@@ -130,6 +133,8 @@ def simulate_season(frame, crop, soil, year, return_daily=False):
         "season_rain_mm": float(window["precip_mm"].sum()),
         "stress_days": int(bucket["stressed"].sum()),
         "stress_days_critical": int((bucket["stressed"] & crit).sum()),
+        "severe_stress_days": int((bucket["ks"] < SEVERE_KS).sum()),
+        "severe_stress_days_critical": int(((bucket["ks"] < SEVERE_KS) & crit).sum()),
         "heat_days_critical": int(((tmax >= thr) & crit).sum()) if thr is not None else None,
         "hot_days_30c_critical": int(((tmax >= HOT_DAY_C) & crit).sum()),
         "notes": notes,
@@ -169,6 +174,8 @@ def summarize(metrics):
         "stress_days_typical": float(metrics["stress_days"].median()),
         "stress_days_dry": float(dry_years["stress_days"].mean()),
         "stress_days_critical_typical": float(metrics["stress_days_critical"].median()),
+        "severe_stress_days_typical": float(metrics["severe_stress_days"].median()),
+        "severe_stress_days_dry": float(dry_years["severe_stress_days"].mean()),
         "heat_days_critical_typical": (None if metrics["heat_days_critical"].isna().all()
                                        else float(metrics["heat_days_critical"].median())),
         "hot_days_30c_critical_typical": float(metrics["hot_days_30c_critical"].median()),

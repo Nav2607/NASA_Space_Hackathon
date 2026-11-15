@@ -1,0 +1,571 @@
+{
+ "request": {
+  "lat": 44.39,
+  "lon": -79.69,
+  "soil": "sandy_loam",
+  "current_rotation": [
+   "soybean"
+  ],
+  "avoid": [
+   "winter_wheat"
+  ],
+  "priorities": {
+   "water": 0.1,
+   "nitrogen": 0.1,
+   "soil_cover": 0.4,
+   "weather_risk": 0.4
+  }
+ },
+ "response": {
+  "disclaimer": "Educational decision support, not agronomic advice. Results are relative comparisons, not field predictions.",
+  "anchor": {
+   "id": "barrie",
+   "lat": 44.39,
+   "lon": -79.69,
+   "distance_km": 0.0
+  },
+  "inputs_used": {
+   "soil": "sandy_loam",
+   "irrigation": false,
+   "tile_drainage": false,
+   "equipment": null,
+   "must_include": [
+    "soybean"
+   ],
+   "avoid": [
+    "winter_wheat"
+   ],
+   "priority_weights": {
+    "water": 0.1,
+    "nitrogen": 0.1,
+    "soil_cover": 0.4,
+    "weather_risk": 0.4
+   },
+   "default_baseline": false
+  },
+  "baseline": {
+   "name": "soybean",
+   "rotation": [
+    {
+     "crop": "soybean",
+     "cover_crop": null
+    }
+   ],
+   "metrics": {
+    "water_use_mm": 438,
+    "dry_year_shortfall_mm": 195,
+    "typical_year_shortfall_mm": 116,
+    "severe_stress_days_typical": 31.0,
+    "severe_stress_days_dry": 60.8,
+    "hot_days_30c_typical": 1.0,
+    "survived_years": 15,
+    "years_simulated": 41,
+    "by_crop": {
+     "soybean": {
+      "water_use_mm": 438,
+      "shortfall_typical_mm": 116,
+      "shortfall_dry_mm": 195
+     }
+    }
+   },
+   "ratings": {
+    "nitrogen": {
+     "index": 1.0,
+     "label": "low",
+     "legume_credit_crops": []
+    },
+    "soil_cover": {
+     "fraction": 0.38,
+     "label": "low"
+    },
+    "pest_break": {
+     "label": "fair",
+     "violations": [
+      "soybean returns after 1 year: Frequent soybean raises soybean cyst nematode and disease risk."
+     ],
+     "break_years": 0
+    }
+   },
+   "confidence": {
+    "water": "moderate confidence",
+    "dry_year_risk": "moderate confidence",
+    "nitrogen": "qualitative only (rule-based)",
+    "soil_cover": "qualitative only (assumed crop calendars)",
+    "pest_break": "qualitative only (rule-based)"
+   },
+   "label": "your_rotation",
+   "label_text": "Your rotation (100%)"
+  },
+  "options": [
+   {
+    "name": "corn + cereal rye → soybean + cereal rye → soybean + cereal rye → soybean + cereal rye",
+    "rotation": [
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     }
+    ],
+    "metrics": {
+     "water_use_mm": 447,
+     "dry_year_shortfall_mm": 188,
+     "typical_year_shortfall_mm": 108,
+     "severe_stress_days_typical": 27.2,
+     "severe_stress_days_dry": 59.6,
+     "hot_days_30c_typical": 1.5,
+     "survived_years": 22,
+     "years_simulated": 41,
+     "by_crop": {
+      "corn": {
+       "water_use_mm": 478,
+       "shortfall_typical_mm": 85,
+       "shortfall_dry_mm": 168
+      },
+      "soybean": {
+       "water_use_mm": 438,
+       "shortfall_typical_mm": 116,
+       "shortfall_dry_mm": 195
+      }
+     }
+    },
+    "ratings": {
+     "nitrogen": {
+      "index": 1.25,
+      "label": "low",
+      "legume_credit_crops": [
+       "corn"
+      ]
+     },
+     "soil_cover": {
+      "fraction": 0.89,
+      "label": "high"
+     },
+     "pest_break": {
+      "label": "poor",
+      "violations": [
+       "soybean returns after 2 years: Frequent soybean raises soybean cyst nematode and disease risk.",
+       "soybean returns after 1 year: Frequent soybean raises soybean cyst nematode and disease risk."
+      ],
+      "break_years": 2
+     }
+    },
+    "confidence": {
+     "water": "moderate confidence; cover-crop water not modelled",
+     "dry_year_risk": "moderate confidence",
+     "nitrogen": "qualitative only (rule-based)",
+     "soil_cover": "qualitative only (assumed crop calendars)",
+     "pest_break": "qualitative only (rule-based)"
+    },
+    "label": "lowest_water",
+    "label_text": "Lowest water use",
+    "score": 0.66,
+    "vs_baseline": {
+     "water_use_pct": 100,
+     "dry_year_shortfall_change_mm": -5,
+     "nitrogen_change": 0.25,
+     "cover_change": 0.51
+    },
+    "why": "Crop water use is about the same as your rotation's. In a dry year (about 1 in 10) it would miss about 5 mm less water. Soil is covered for more of the year: high cover vs your low.",
+    "tradeoffs": [
+     "Nitrogen demand is higher: 1.25 vs your 1.0 (1 = low, 3 = high).",
+     "Pest and disease break: poor (yours: fair).",
+     "Cover crops add seeding and termination work.",
+     "Extra harvest and planting workload at the fall changeover."
+    ],
+    "warnings": [
+     "cereal rye after corn is seeded late (corn harvest runs into November), so growth may be limited",
+     "soybean returns after 2 years: Frequent soybean raises soybean cyst nematode and disease risk.",
+     "soybean returns after 1 year: Frequent soybean raises soybean cyst nematode and disease risk.",
+     "Cover-crop water use is not modelled (no reliable library values), so water figures cover the main crops only."
+    ]
+   },
+   {
+    "name": "corn + cereal rye → soybean + cereal rye → soybean + cereal rye",
+    "rotation": [
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     }
+    ],
+    "metrics": {
+     "water_use_mm": 451,
+     "dry_year_shortfall_mm": 186,
+     "typical_year_shortfall_mm": 106,
+     "severe_stress_days_typical": 27.0,
+     "severe_stress_days_dry": 59.2,
+     "hot_days_30c_typical": 1.7,
+     "survived_years": 23,
+     "years_simulated": 41,
+     "by_crop": {
+      "corn": {
+       "water_use_mm": 478,
+       "shortfall_typical_mm": 85,
+       "shortfall_dry_mm": 168
+      },
+      "soybean": {
+       "water_use_mm": 438,
+       "shortfall_typical_mm": 116,
+       "shortfall_dry_mm": 195
+      }
+     }
+    },
+    "ratings": {
+     "nitrogen": {
+      "index": 1.33,
+      "label": "low",
+      "legume_credit_crops": [
+       "corn"
+      ]
+     },
+     "soil_cover": {
+      "fraction": 0.89,
+      "label": "high"
+     },
+     "pest_break": {
+      "label": "poor",
+      "violations": [
+       "soybean returns after 2 years: Frequent soybean raises soybean cyst nematode and disease risk.",
+       "soybean returns after 1 year: Frequent soybean raises soybean cyst nematode and disease risk."
+      ],
+      "break_years": 2
+     }
+    },
+    "confidence": {
+     "water": "moderate confidence; cover-crop water not modelled",
+     "dry_year_risk": "moderate confidence",
+     "nitrogen": "qualitative only (rule-based)",
+     "soil_cover": "qualitative only (assumed crop calendars)",
+     "pest_break": "qualitative only (rule-based)"
+    },
+    "label": "lowest_nitrogen",
+    "label_text": "Lowest nitrogen demand",
+    "score": 0.69,
+    "vs_baseline": {
+     "water_use_pct": 105,
+     "dry_year_shortfall_change_mm": -10,
+     "nitrogen_change": 0.33,
+     "cover_change": 0.51
+    },
+    "why": "In a dry year (about 1 in 10) it would miss about 10 mm less water. Soil is covered for more of the year: high cover vs your low.",
+    "tradeoffs": [
+     "Crop water use is about 105% of your rotation's (451 vs 438 mm a season).",
+     "Nitrogen demand is higher: 1.33 vs your 1.0 (1 = low, 3 = high).",
+     "Pest and disease break: poor (yours: fair).",
+     "Cover crops add seeding and termination work.",
+     "Extra harvest and planting workload at the fall changeover."
+    ],
+    "warnings": [
+     "cereal rye after corn is seeded late (corn harvest runs into November), so growth may be limited",
+     "soybean returns after 2 years: Frequent soybean raises soybean cyst nematode and disease risk.",
+     "soybean returns after 1 year: Frequent soybean raises soybean cyst nematode and disease risk.",
+     "Cover-crop water use is not modelled (no reliable library values), so water figures cover the main crops only."
+    ]
+   },
+   {
+    "name": "corn + cereal rye → corn + cereal rye → corn + cereal rye → soybean + cereal rye",
+    "rotation": [
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     }
+    ],
+    "metrics": {
+     "water_use_mm": 468,
+     "dry_year_shortfall_mm": 175,
+     "typical_year_shortfall_mm": 93,
+     "severe_stress_days_typical": 23.2,
+     "severe_stress_days_dry": 57.2,
+     "hot_days_30c_typical": 2.2,
+     "survived_years": 28,
+     "years_simulated": 41,
+     "by_crop": {
+      "corn": {
+       "water_use_mm": 478,
+       "shortfall_typical_mm": 85,
+       "shortfall_dry_mm": 168
+      },
+      "soybean": {
+       "water_use_mm": 438,
+       "shortfall_typical_mm": 116,
+       "shortfall_dry_mm": 195
+      }
+     }
+    },
+    "ratings": {
+     "nitrogen": {
+      "index": 2.25,
+      "label": "medium",
+      "legume_credit_crops": [
+       "corn"
+      ]
+     },
+     "soil_cover": {
+      "fraction": 0.92,
+      "label": "high"
+     },
+     "pest_break": {
+      "label": "fair",
+      "violations": [
+       "corn returns after 1 year: Corn after corn is allowed but flagged: higher rootworm and disease pressure, lower yield."
+      ],
+      "break_years": 2
+     }
+    },
+    "confidence": {
+     "water": "moderate confidence; cover-crop water not modelled",
+     "dry_year_risk": "moderate confidence",
+     "nitrogen": "qualitative only (rule-based)",
+     "soil_cover": "qualitative only (assumed crop calendars)",
+     "pest_break": "qualitative only (rule-based)"
+    },
+    "label": "best_soil_cover",
+    "label_text": "Best soil cover",
+    "score": 0.8,
+    "vs_baseline": {
+     "water_use_pct": 105,
+     "dry_year_shortfall_change_mm": -20,
+     "nitrogen_change": 1.25,
+     "cover_change": 0.54
+    },
+    "why": "In a dry year (about 1 in 10) it would miss about 20 mm less water. Soil is covered for more of the year: high cover vs your low.",
+    "tradeoffs": [
+     "Crop water use is about 105% of your rotation's (468 vs 438 mm a season).",
+     "Nitrogen demand is higher: 2.25 vs your 1.0 (1 = low, 3 = high).",
+     "Cover crops add seeding and termination work.",
+     "Extra harvest and planting workload at the fall changeover."
+    ],
+    "warnings": [
+     "cereal rye after corn is seeded late (corn harvest runs into November), so growth may be limited",
+     "corn returns after 1 year: Corn after corn is allowed but flagged: higher rootworm and disease pressure, lower yield.",
+     "Cover-crop water use is not modelled (no reliable library values), so water figures cover the main crops only."
+    ]
+   },
+   {
+    "name": "corn + cereal rye → corn + cereal rye → soybean + cereal rye",
+    "rotation": [
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     }
+    ],
+    "metrics": {
+     "water_use_mm": 464,
+     "dry_year_shortfall_mm": 177,
+     "typical_year_shortfall_mm": 95,
+     "severe_stress_days_typical": 23.7,
+     "severe_stress_days_dry": 57.6,
+     "hot_days_30c_typical": 2.3,
+     "survived_years": 27,
+     "years_simulated": 41,
+     "by_crop": {
+      "corn": {
+       "water_use_mm": 478,
+       "shortfall_typical_mm": 85,
+       "shortfall_dry_mm": 168
+      },
+      "soybean": {
+       "water_use_mm": 438,
+       "shortfall_typical_mm": 116,
+       "shortfall_dry_mm": 195
+      }
+     }
+    },
+    "ratings": {
+     "nitrogen": {
+      "index": 2.0,
+      "label": "medium",
+      "legume_credit_crops": [
+       "corn"
+      ]
+     },
+     "soil_cover": {
+      "fraction": 0.92,
+      "label": "high"
+     },
+     "pest_break": {
+      "label": "fair",
+      "violations": [
+       "corn returns after 1 year: Corn after corn is allowed but flagged: higher rootworm and disease pressure, lower yield."
+      ],
+      "break_years": 2
+     }
+    },
+    "confidence": {
+     "water": "moderate confidence; cover-crop water not modelled",
+     "dry_year_risk": "moderate confidence",
+     "nitrogen": "qualitative only (rule-based)",
+     "soil_cover": "qualitative only (assumed crop calendars)",
+     "pest_break": "qualitative only (rule-based)"
+    },
+    "label": "lowest_dry_year_risk",
+    "label_text": "Lowest dry-year risk",
+    "score": 0.79,
+    "vs_baseline": {
+     "water_use_pct": 105,
+     "dry_year_shortfall_change_mm": -20,
+     "nitrogen_change": 1.0,
+     "cover_change": 0.54
+    },
+    "why": "In a dry year (about 1 in 10) it would miss about 20 mm less water. Soil is covered for more of the year: high cover vs your low.",
+    "tradeoffs": [
+     "Crop water use is about 105% of your rotation's (464 vs 438 mm a season).",
+     "Nitrogen demand is higher: 2.0 vs your 1.0 (1 = low, 3 = high).",
+     "Cover crops add seeding and termination work.",
+     "Extra harvest and planting workload at the fall changeover."
+    ],
+    "warnings": [
+     "cereal rye after corn is seeded late (corn harvest runs into November), so growth may be limited",
+     "corn returns after 1 year: Corn after corn is allowed but flagged: higher rootworm and disease pressure, lower yield.",
+     "Cover-crop water use is not modelled (no reliable library values), so water figures cover the main crops only."
+    ]
+   },
+   {
+    "name": "corn + cereal rye → soybean + cereal rye",
+    "rotation": [
+     {
+      "crop": "corn",
+      "cover_crop": "cereal_rye"
+     },
+     {
+      "crop": "soybean",
+      "cover_crop": "cereal_rye"
+     }
+    ],
+    "metrics": {
+     "water_use_mm": 457,
+     "dry_year_shortfall_mm": 181,
+     "typical_year_shortfall_mm": 100,
+     "severe_stress_days_typical": 25.5,
+     "severe_stress_days_dry": 58.4,
+     "hot_days_30c_typical": 2.0,
+     "survived_years": 25,
+     "years_simulated": 41,
+     "by_crop": {
+      "corn": {
+       "water_use_mm": 478,
+       "shortfall_typical_mm": 85,
+       "shortfall_dry_mm": 168
+      },
+      "soybean": {
+       "water_use_mm": 438,
+       "shortfall_typical_mm": 116,
+       "shortfall_dry_mm": 195
+      }
+     }
+    },
+    "ratings": {
+     "nitrogen": {
+      "index": 1.5,
+      "label": "low",
+      "legume_credit_crops": [
+       "corn"
+      ]
+     },
+     "soil_cover": {
+      "fraction": 0.91,
+      "label": "high"
+     },
+     "pest_break": {
+      "label": "fair",
+      "violations": [
+       "soybean returns after 2 years: Frequent soybean raises soybean cyst nematode and disease risk."
+      ],
+      "break_years": 2
+     }
+    },
+    "confidence": {
+     "water": "moderate confidence; cover-crop water not modelled",
+     "dry_year_risk": "moderate confidence",
+     "nitrogen": "qualitative only (rule-based)",
+     "soil_cover": "qualitative only (assumed crop calendars)",
+     "pest_break": "qualitative only (rule-based)"
+    },
+    "label": "balanced",
+    "label_text": "Balanced",
+    "score": 0.75,
+    "vs_baseline": {
+     "water_use_pct": 105,
+     "dry_year_shortfall_change_mm": -15,
+     "nitrogen_change": 0.5,
+     "cover_change": 0.53
+    },
+    "why": "In a dry year (about 1 in 10) it would miss about 15 mm less water. Soil is covered for more of the year: high cover vs your low.",
+    "tradeoffs": [
+     "Crop water use is about 105% of your rotation's (457 vs 438 mm a season).",
+     "Nitrogen demand is higher: 1.5 vs your 1.0 (1 = low, 3 = high).",
+     "Cover crops add seeding and termination work.",
+     "Extra harvest and planting workload at the fall changeover."
+    ],
+    "warnings": [
+     "cereal rye after corn is seeded late (corn harvest runs into November), so growth may be limited",
+     "soybean returns after 2 years: Frequent soybean raises soybean cyst nematode and disease risk.",
+     "Cover-crop water use is not modelled (no reliable library values), so water figures cover the main crops only."
+    ]
+   }
+  ],
+  "charts": {
+   "typical_vs_dry_by_crop": {
+    "soybean": {
+     "water_use_mm": 438,
+     "shortfall_typical_mm": 116,
+     "shortfall_dry_mm": 195
+    }
+   }
+  },
+  "sources": {
+   "water_use": "Simulated (NASA POWER weather + FAO-56 method)",
+   "dry_year_shortfall": "Simulated (NASA POWER weather + FAO-56 method)",
+   "stress_days": "Simulated",
+   "weather": "NASA-derived (POWER, about 50 km grid)",
+   "nitrogen": "Rule-based",
+   "soil_cover": "Rule-based (crop calendars, assumed dates)",
+   "pest_break": "Rule-based",
+   "survival": "Simulated; threshold assumed"
+  },
+  "warnings": [
+   "You entered one crop (soybean), so options all include it.",
+   "Without irrigation, dry years leave a large water shortfall at this location for your own rotation too.",
+   "Tile drainage, water tables and runoff are not modelled.",
+   "Percentages are rounded to the nearest 5%."
+  ]
+ }
+}
