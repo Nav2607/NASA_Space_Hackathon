@@ -64,6 +64,8 @@
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       const d = data.detail;
+      if (Array.isArray(d) && d.some(x => ['lat', 'lon'].includes((x.loc || [])[1])))
+        throw new Error('This location is outside the area the model covers (Southern Ontario). Choose a point on the map closer to Southern Ontario.');
       throw new Error(typeof d === 'string' ? d
         : Array.isArray(d) ? d.map(x => `${(x.loc || []).slice(1).join('.')}: ${x.msg}`).join('; ')
         : `Server error ${res.status}`);
@@ -71,9 +73,9 @@
     return data;
   }
 
-  function metricRow(label, value, delta) {
+  function metricRow(label, value, delta, rating) {
     const row = node('div', 'ts-metric');
-    row.append(node('span', 'ts-muted', label), node('strong', '', value));
+    row.append(node('span', 'ts-muted', label), node('strong', rating ? 'ts-rating' : '', value));
     if (delta) row.append(node('small', 'ts-muted', delta));
     return row;
   }
@@ -91,9 +93,9 @@
     c.append(metricRow('Potential water demand per year', mm(m.water_use_mm), signed(diff('water_use_mm'), 'mm')));
     c.append(metricRow(mode === 'dry' ? 'Unmet demand, dry year' : 'Unmet demand, typical year', mm(m[key]), signed(diff(key), 'mm')));
     const r = entry.ratings || {};
-    if (r.nitrogen) c.append(metricRow('Nitrogen need (indicator)', r.nitrogen.label));
-    if (r.soil_cover) c.append(metricRow('Soil cover (indicator)', r.soil_cover.label));
-    if (r.pest_break) c.append(metricRow('Pest / disease break', r.pest_break.label));
+    if (r.nitrogen) c.append(metricRow('Nitrogen need (indicator)', r.nitrogen.label, null, true));
+    if (r.soil_cover) c.append(metricRow('Soil cover (indicator)', r.soil_cover.label, null, true));
+    if (r.pest_break) c.append(metricRow('Pest / disease break', r.pest_break.label, null, true));
     if (entry.why) c.append(node('p', 'ts-why', entry.why));
     const notes = [...(entry.tradeoffs || []), ...(entry.warnings || [])];
     if (notes.length) {

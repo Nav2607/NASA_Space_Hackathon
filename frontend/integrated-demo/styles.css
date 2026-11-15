@@ -115,3 +115,18 @@
 .terrashift-anchor-marker{width:12px;height:12px;border:2px solid #fff;border-radius:50%;background:#244d3e;box-shadow:0 1px 5px #1e352c66;}
 .map-frame .maplibregl-map{font-family:inherit;}
 .map-frame .maplibregl-ctrl-attrib{font-size:10px;}
+
+/* Backend results cards */
+.ts-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:6px}
+.ts-card.ts-featured{border-color:var(--forest);box-shadow:0 0 0 1px var(--forest),var(--shadow)}
+.ts-eyebrow{margin:0;font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--sage)}
+.ts-card h3{margin:0 0 8px;font-size:17px;letter-spacing:-.3px;color:var(--forest-deep)}
+.ts-metric{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 10px;padding:7px 0;border-bottom:1px solid #eceee5;font-size:12.5px}
+.ts-metric strong{font-size:13.5px;color:var(--charcoal)}.ts-metric .ts-rating{text-transform:capitalize}
+.ts-metric small{flex-basis:100%;text-align:right;font-size:11px}
+.ts-muted{color:var(--muted)}
+.ts-why{font-size:12.5px;line-height:1.55;color:#4d5d51;margin:8px 0 2px}
+.ts-details{font-size:12px;color:var(--muted)}
+.ts-details summary{cursor:pointer;font-weight:700;color:var(--forest)}
+.ts-details ul{padding-left:18px;line-height:1.55}
+.ts-no-alts{grid-column:1/-1;background:#f3ebd7;border-radius:12px;padding:16px;font-size:13px;color:#5b5943}

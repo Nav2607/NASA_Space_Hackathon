@@ -137,7 +137,7 @@
   function message(errors){
     const box=$('formMessage');box.replaceChildren();box.className=errors.length?'form-message form-error':'form-message form-success';
     if(errors.length){const title=document.createElement('strong');title.textContent='Please review these inputs:';const ul=document.createElement('ul');errors.forEach(x=>{const li=document.createElement('li');li.textContent=x;ul.append(li);});box.append(title,ul);}
-    else box.textContent='Inputs checked. Loading historical NASA data below…';
+    else box.textContent='Inputs checked. Running the simulation…';
     box.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   form.addEventListener('submit',e=>{
