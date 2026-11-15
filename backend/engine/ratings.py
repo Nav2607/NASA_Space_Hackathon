@@ -35,20 +35,17 @@ def _label(value, cuts):
 
 
 def nitrogen_rating(rotation, crops):
-    """Mean of per-year demand (high 3, medium 2, low 1), minus one level when a legume
-    (soybean or underseeded red clover) came the year before a non-legume crop."""
+    """Mean ordinal demand (high 3, medium 2, low 1); no uncited nitrogen credits."""
     levels, credits = [], []
     for i, (crop, _) in enumerate(rotation):
         level = N_LEVEL[crops[crop]["n_base_class"]]
-        prev_crop, prev_cover = rotation[i - 1]
-        legume_before = crops[prev_crop]["legume"] or prev_cover == "red_clover"
-        if legume_before and not crops[crop]["legume"] and level > 1:
-            level -= 1
-            credits.append(crop)
+        # The existing blanket legume-credit rule has status needs_citation.
+        # Do not apply an unsupported nitrogen reduction to scored alternatives.
         levels.append(level)
     index = sum(levels) / len(levels)
     return {"index": round(index, 2), "label": _label(index, N_LABEL_CUTS),
-            "legume_credit_crops": credits}
+            "legume_credit_crops": credits, "source_type": "Rule-based ordinal indicator",
+            "note": "No nitrogen credits applied: predecessor-specific citations are incomplete"}
 
 
 def cover_rating(rotation, crops):

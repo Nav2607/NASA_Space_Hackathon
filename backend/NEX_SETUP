@@ -20,3 +20,11 @@ https://ds.nccs.nasa.gov/thredds/catalog/AMES/NEX/GDDP-CMIP6/catalog.html
 
 Keep each climate model separate.
 Label results as projected climate, not observed weather.
+
+Current MVP future period: 2031–2050. The London 2041–2060 demo described above
+is retained as an earlier extraction artifact; it is not relabeled for the MVP.
+Use extract_nex_region.py --future 2031 2050 for regional model-specific change
+factors against matched 1995–2014 model reference years. The corrected engine
+uses matched POWER reference daily sequences and independently simulates every
+model, then summarizes outcomes. See SCIENTIFIC_VALIDITY.md for the explicit
+mean-temperature/DTR method, event-sequence limitations and frontend contract.

@@ -55,12 +55,28 @@ def fetch_point(lat: float, lon: float, retries: int = 3):
 def to_frame(payload):
     fill = payload.get("header", {}).get("fill_value", -999.0)
     series = payload["properties"]["parameter"]
+    if set(series) != set(PARAMS):
+        raise ValueError("POWER response does not contain exactly the requested parameters")
+    units = {key: payload["parameters"][key]["units"] for key in PARAMS}
+    expected = {"T2M_MAX": {"C", "degC"}, "T2M_MIN": {"C", "degC"},
+                "PRECTOTCORR": {"mm/day"}, "RH2M": {"%"}, "WS2M": {"m/s"}}
+    for key, allowed in expected.items():
+        if units[key] not in allowed:
+            raise ValueError(f"Unexpected POWER units for {key}: {units[key]}")
+    solar_unit = units["ALLSKY_SFC_SW_DWN"]
+    if solar_unit not in {"MJ/m^2/day", "MJ/m2/day", "kW-hr/m^2/day", "kWh/m^2/day"}:
+        raise ValueError(f"Unexpected POWER radiation units: {solar_unit}")
     frame = pd.DataFrame(
         {PARAMS[name]: pd.Series(values) for name, values in series.items()}
     )
     frame = frame.where(frame != fill)
+    if solar_unit in {"kW-hr/m^2/day", "kWh/m^2/day"}:
+        frame["solar_mj_m2"] *= 3.6
     frame.index = pd.to_datetime(frame.index, format="%Y%m%d")
     frame.index.name = "date"
+    expected_dates = pd.date_range(frame.index.min(), frame.index.max(), freq="D")
+    if not frame.index.sort_values().equals(expected_dates):
+        raise ValueError("POWER response dates are incomplete or duplicated")
     return frame.sort_index()
 
 
@@ -72,6 +88,15 @@ def save_anchor(anchor_id: str, lat: float, lon: float):
     folder = OUT_DIR / anchor_id
     folder.mkdir(parents=True, exist_ok=True)
     frame.to_csv(folder / "weather.csv", index=True)
+    metadata = {"dataset": "NASA POWER", "source_url": API,
+                "requested_coordinates": {"lat": lat, "lon": lon},
+                "returned_geometry": payload.get("geometry"),
+                "date_range": {"start": START, "end": END},
+                "time_standard": payload.get("header", {}).get("time_standard", "LST (API default)"),
+                "source_parameters": payload["parameters"],
+                "solar_output_units": "MJ/m2/day",
+                "retrieved_at_utc": pd.Timestamp.now(tz="UTC").isoformat()}
+    (folder / "weather.metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
     units = payload.get("parameters", {})
     print(f"  rows: {len(frame)}  ({frame.index.min().date()} to {frame.index.max().date()})")

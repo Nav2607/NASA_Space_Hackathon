@@ -20,10 +20,21 @@ def sat_vapour_pressure(t_c):
     return 0.6108 * np.exp(17.27 * t_c / (t_c + 237.3))
 
 
+def validate_temperatures(tmax, tmin):
+    tmax, tmin = np.broadcast_arrays(np.asarray(tmax, float), np.asarray(tmin, float))
+    if np.any(np.isinf(tmax)) or np.any(np.isinf(tmin)) or np.any(tmax < tmin):
+        raise ValueError("Invalid temperatures: require Tmax >= Tmin and no infinity")
+    return tmax, tmin
+
+
 def extraterrestrial_radiation(lat_deg, doy):
     """Ra in MJ m-2 day-1 (FAO-56 eq. 21-25)."""
+    if not np.isfinite(lat_deg) or not -90 <= lat_deg <= 90:
+        raise ValueError("Latitude must be finite and within [-90, 90]")
     phi = np.radians(lat_deg)
     doy = np.asarray(doy, dtype=float)
+    if np.any(~np.isfinite(doy)) or np.any((doy < 1) | (doy > 366)):
+        raise ValueError("Invalid day of year")
     dr = 1 + 0.033 * np.cos(2 * np.pi * doy / 365)
     delta = 0.409 * np.sin(2 * np.pi * doy / 365 - 1.39)
     ws = np.arccos(np.clip(-np.tan(phi) * np.tan(delta), -1, 1))
@@ -40,13 +51,21 @@ def et0_penman_monteith(tmax, tmin, rh_mean, wind_2m, solar, lat_deg, doy,
     ea: actual vapour pressure in kPa; if None it is taken from rh_mean (eq. 19).
     Soil heat flux G is taken as 0 for daily steps.
     """
-    tmax, tmin = np.asarray(tmax, float), np.asarray(tmin, float)
+    tmax, tmin = validate_temperatures(tmax, tmin)
     wind_2m, solar = np.asarray(wind_2m, float), np.asarray(solar, float)
+    if np.any(wind_2m < 0) or np.any(solar < 0) or np.any(np.isinf(wind_2m)) or np.any(np.isinf(solar)):
+        raise ValueError("Wind and solar radiation must be nonnegative and not infinite")
+    if not np.isfinite(elevation_m) or elevation_m > 9000 or elevation_m < -500:
+        raise ValueError("Invalid elevation in metres")
+    if rh_mean is not None and (np.any(np.asarray(rh_mean) < 0) or np.any(np.asarray(rh_mean) > 100)):
+        raise ValueError("Relative humidity must be a percentage within [0,100]")
     tmean = (tmax + tmin) / 2
 
     es = (sat_vapour_pressure(tmax) + sat_vapour_pressure(tmin)) / 2
     if ea is None:
         ea = np.asarray(rh_mean, float) / 100 * es
+    if np.any(np.asarray(ea) < 0) or np.any(np.isinf(ea)):
+        raise ValueError("Vapour pressure must be nonnegative and not infinite")
 
     pressure = 101.3 * ((293 - 0.0065 * elevation_m) / 293) ** 5.26
     gamma = 0.000665 * pressure
@@ -60,9 +79,9 @@ def et0_penman_monteith(tmax, tmin, rh_mean, wind_2m, solar, lat_deg, doy,
         * (0.34 - 0.14 * np.sqrt(ea)) * (1.35 * rs_rso - 0.35)
     rn = rns - rnl
 
-    return (0.408 * delta * rn + gamma * 900 / (tmean + 273) * wind_2m * (es - ea)) / (
+    return np.maximum(0, (0.408 * delta * rn + gamma * 900 / (tmean + 273) * wind_2m * (es - ea)) / (
         delta + gamma * (1 + 0.34 * wind_2m)
-    )
+    ))
 
 
 def et0_hargreaves(tmax, tmin, lat_deg, doy):
@@ -71,9 +90,9 @@ def et0_hargreaves(tmax, tmin, lat_deg, doy):
     Needs no solar, humidity or wind, so it also works on NEX projections
     and for years where POWER solar radiation is missing. Less accurate in humid climates.
     """
-    tmax, tmin = np.asarray(tmax, float), np.asarray(tmin, float)
+    tmax, tmin = validate_temperatures(tmax, tmin)
     ra_mm = 0.408 * extraterrestrial_radiation(lat_deg, doy)
-    return 0.0023 * ((tmax + tmin) / 2 + 17.8) * np.sqrt(np.maximum(tmax - tmin, 0)) * ra_mm
+    return np.maximum(0, 0.0023 * ((tmax + tmin) / 2 + 17.8) * np.sqrt(tmax - tmin) * ra_mm)
 
 
 def et0_frame(weather, lat_deg, elevation_m=DEFAULT_ELEVATION_M):

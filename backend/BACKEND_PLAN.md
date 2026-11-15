@@ -2,6 +2,17 @@
 
 Goal: given a location and farmer inputs, return a baseline evaluation plus 3-5 alternative crop rotations, each with scores, ratings, confidence labels and plain-language explanations.
 
+Scientific correction supersedes the independent crop-year lookup approach below:
+the current engine runs continuous chronological rotations with all starting
+phases, fixed bucket capacity and common initialization. Cover variants are
+excluded until defensible demand inputs exist; constraints are never relaxed to
+reach three options. Historical periods are 2005–2014 and 2015–2024, and the future
+target is 2031–2050 with independently simulated NEX models and Hargreaves in all
+runs. Legacy processed datasets remain preserved but are not used for scoring.
+See [SCIENTIFIC_VALIDITY.md](SCIENTIFIC_VALIDITY.md) for current API changes,
+methods and limitations; the older build plan below is retained as historical
+planning context where it conflicts with that correction.
+
 ## 1. Architecture (the key decision)
 
 **Python does everything. The frontend only displays.**
@@ -10,7 +21,7 @@ Goal: given a location and farmer inputs, return a baseline evaluation plus 3-5 
  OFFLINE (run once, results committed)             RUNTIME (fast, no external calls)
  ---------------------------------------           ----------------------------------
  NASA POWER  -> data/raw/power/<anchor>.csv        FastAPI app
- SMAP (opt.) -> data/raw/smap/<anchor>.csv           |- loads reference JSON + precomputed tables
+ SMAP (post-MVP; origin/smap 2e03043)               |- loads reference JSON + precomputed tables
  NEX (opt.)  -> data/raw/nex/<anchor>.csv            |- generates / filters / scores rotations
                     |                                |- returns JSON (the frontend contract)
                     v
@@ -41,7 +52,7 @@ backend/
       anchor_summary.json         per-anchor stats for the map (dry-year shortfall, heat days)
   data_scripts/
     fetch_power.py                (exists; extend, see step 1)
-    fetch_smap.py                 optional
+    fetch_smap.py                 post-MVP; preserved on origin/smap, not this branch
     fetch_nex.py                  optional
     build_metrics.py              runs the engine over all combos
   engine/
@@ -64,7 +75,7 @@ backend/
 
 | # | Step | Output | Est. |
 |---|------|--------|------|
-| 1 | **Data pull.** Fix units bug in `fetch_power.py`, set START to 1981, run all 12 anchors, validate (row counts, gaps, sanity ranges). Submit the SMAP request now if used (see section 7). | 12 CSVs | 1-2 h |
+| 1 | **Data pull.** Fix units bug in `fetch_power.py`, set START to 1981, run all 12 anchors, validate (row counts, gaps, sanity ranges). SMAP is deferred; do not submit additional requests. | 12 CSVs | 1-2 h |
 | 2 | **Reference tables.** Fill `crops.json`, `soil_texture.json`, `rotation_rules.json` from FAO-56 and OMAFRA with a `sources` field on every value. Unknown = `null`. Add a schema validator that fails on any number without a source. | 3 JSON files | 2-3 h |
 | 3 | **ET0 and crop water use.** Penman-Monteith from POWER fields (Tmax, Tmin, RH, wind, solar), Hargreaves fallback. ETc = Kc(stage) x ET0. Unit-test against a hand-worked FAO-56 example. | `et0.py` | 2 h |
 | 4 | **Soil-water bucket.** Daily store, stress days, shortfall (mm). Run the full year, carrying water between seasons, so cover crops are not penalized unfairly. | `water_balance.py` | 2 h |
@@ -74,7 +85,7 @@ backend/
 | 8 | **Rotation engine.** Enumerate 2-4 year sequences, apply rules (min gaps, predecessors), apply constraints (must, avoid, equipment), evaluate by lookup, score against the baseline, weight by sliders, label options. | `rotations.py`, `scoring.py` | 3-4 h |
 | 9 | **Explanations and confidence.** Templates for "why / trade-offs" and per-metric confidence from `data_quality`. | `explain.py`, `confidence.py` | 1-2 h |
 | 10 | **API.** Wire it up with FastAPI and CORS, plus the endpoints below. | running server | 2 h |
-| 11 | **Validation extras.** SMAP anomaly check, anchor summary for the map, optional NEX delta method. | see section 7 | 2-4 h |
+| 11 | **Validation extras.** Anchor summary for the map, optional NEX delta method. SMAP observational cross-check is post-MVP only. | see section 7 | 2-4 h |
 
 Steps 1-2 can run in parallel. Steps 3-6 depend on 1-2. Total about 18-24 h of backend work, so confirm the cut order in section 7.
 
@@ -140,12 +151,12 @@ Every metric carries a source tag and a confidence label. Percentages are rounde
 
 ## 7. Optional work and cut order
 
-1. **SMAP anomaly check.** Use NASA AppEEARS point extraction instead of raw HDF5 downloads. Request it on day one, since it queues. Compare year-to-year anomalies, not monthly averages.
+1. **SMAP observational cross-check — deferred post-MVP.** The extraction pipeline, tests, documentation and Guelph pilot cache (2016-01-01) are preserved on `origin/smap`, commit `2e03043`, separately from core backend development. Existing local intermediate samples remain intact and ignored. Do not initiate additional SMAP downloads or integrate SMAP into the simulation or recommendation engine. Future regional comparisons require separate scoping and must not be described as farm-level validation. See [SMAP_SETUP.md on the preserved commit](https://github.com/Nav2607/NASA_Space_Hackathon/tree/2e03043/backend/SMAP_SETUP.md) for retained technical details.
 2. **NEX-GDDP-CMIP6 "2050s".** Use the delta method: compute monthly temperature and precipitation changes from 3+ models, apply them to the historical POWER series, and rerun the engine.
 3. **Anchor summary for the map.** Cheap and valuable; do it before SMAP or NEX.
 4. **AAFC soil layer.** Only if a downloadable licensed dataset is found quickly.
 
-Cut order if behind: NEX, then SMAP, then AAFC. Keep the anchor summary.
+SMAP is already deferred beyond the MVP. For the remaining optional work, cut order if behind: NEX, then AAFC. Keep the anchor summary.
 
 ## 8. Open decisions to settle first
 

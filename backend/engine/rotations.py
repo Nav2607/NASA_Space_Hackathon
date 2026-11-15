@@ -26,6 +26,10 @@ def main_sequences(rules, lengths=(2, 3, 4)):
                 continue
             if any((seq[i - 1], seq[i]) in banned for i in range(n)):
                 continue
+            if any(next(k for k in range(1, n + 1) if seq[(i-k) % n] == crop)
+                   <= rules["min_gap_years"].get(crop, {}).get("value", 0)
+                   for i, crop in enumerate(seq)):
+                continue
             seen.add(_canonical(seq))
     return sorted(seen, key=lambda s: (len(s), s))
 
@@ -55,7 +59,8 @@ def cover_variants(seq):
 
 
 def all_candidates(rules):
-    return [rot for seq in main_sequences(rules) for rot in cover_variants(list(seq))]
+    # Retain cover_variants for future work; incomplete demand inputs preclude scoring.
+    return [tuple((crop, None) for crop in seq) for seq in main_sequences(rules)]
 
 
 def crops_in(rotation):
@@ -84,5 +89,5 @@ def filter_candidates(candidates, crops, must_include=(), avoid=(), equipment=No
 
 def canonical_rotation(rotation):
     """Cyclic-shift-invariant key for a rotation (used to avoid recommending the baseline)."""
-    seq = [tuple(y) for y in rotation]
+    seq = [(c, cover or "") for c, cover in rotation]
     return min(tuple(seq[i:] + seq[:i]) for i in range(len(seq)))

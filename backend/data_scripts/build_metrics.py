@@ -1,70 +1,46 @@
-"""Precompute per-year crop metrics for every anchor x soil x crop.
+"""Build versioned continuous rotation diagnostics without overwriting old datasets.
 
-Output (committed, small):
-  backend/data/processed/crop_year_metrics.csv   one row per anchor/soil/crop/year
-  backend/data/processed/anchor_summary.json     map-ready stats per anchor
-
-Run from the repo root:  python backend/data_scripts/build_metrics.py
+Old crop_year_metrics.csv and anchor_summary.json are retained as legacy artifacts;
+the corrected API never uses independent crop-year averages for rotation scoring.
 """
+import argparse
 import json
 import sys
 from pathlib import Path
 
-import pandas as pd
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from engine import et0, water_balance as wb
-from engine.weather import DATA_DIR, complete_years, load_anchors, load_reference, load_weather
-
-MAIN_CROPS = ["corn", "soybean", "winter_wheat"]   # crops with enough library data to simulate
-YEARS = range(1981, 2025)
+from engine import recommend as R, rotations
+from engine.weather import load_anchors, load_reference
 
 
 def main():
-    anchors, crops, soils = load_anchors(), load_reference("crops"), load_reference("soil_texture")
-    soils = {k: v for k, v in soils.items() if not k.startswith("_")}
-    frames, summary = [], {}
-
-    for anchor, pos in anchors.items():
-        weather = load_weather(anchor)
-        frame = weather[["tmax_c", "precip_mm"]].join(et0.et0_frame(weather, pos["lat"]))
-        for soil_id, soil in soils.items():
-            for crop_id in MAIN_CROPS:
-                m = wb.simulate_years(frame, crops[crop_id], soil, YEARS)
-                if m.empty:
-                    continue
-                m = m.reset_index()
-                m.insert(0, "crop", crop_id)
-                m.insert(0, "soil", soil_id)
-                m.insert(0, "anchor", anchor)
-                frames.append(m)
-
-        # map summary: corn on loam as the reference case
-        ref = wb.simulate_years(frame, crops["corn"], soils["loam"], YEARS)
-        s = wb.summarize(ref)
-        may_sep = weather[(weather.index.month >= 5) & (weather.index.month <= 9)]
-        years_ok = complete_years(weather)
-        summary[anchor] = {
-            "lat": pos["lat"], "lon": pos["lon"],
-            "reference_case": "corn on loam",
-            "dry_year_shortfall_mm": round(s["shortfall_mm_dry"]),
-            "typical_shortfall_mm": round(s["shortfall_mm_typical"]),
-            "survived_years": s["survived_years"], "n_years": s["n_years"],
-            "may_sep_rain_mm": round(float(may_sep["precip_mm"].groupby(may_sep.index.year).sum().mean())),
-            "hot_days_30c_per_year": round(float((weather["tmax_c"] >= 30).groupby(weather.index.year).sum().mean()), 1),
-            "years_with_complete_data": len(years_ok),
-            "source_type": "Simulated from NASA-derived (POWER) weather",
-        }
-        print(f"{anchor:13} done")
-
-    out_dir = DATA_DIR / "processed"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    table = pd.concat(frames, ignore_index=True)
-    table.to_csv(out_dir / "crop_year_metrics.csv", index=False, float_format="%.3f")
-    (out_dir / "anchor_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    print(f"\n{len(table)} rows -> {out_dir / 'crop_year_metrics.csv'}")
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--anchor', choices=list(load_anchors()), default='guelph')
+    p.add_argument('--soil', choices=['loam','clay','clay_loam','sandy_loam'], default='loam')
+    p.add_argument('--output', type=Path, default=Path('backend/data/processed/rotation_metrics_v2.json'))
+    args = p.parse_args()
+    # Do not overwrite preserved pre-correction datasets, even through --output.
+    preserved = {'crop_year_metrics.csv','anchor_summary.json'}
+    if args.output.name in preserved:
+        p.error('Use a new output filename; legacy cached datasets are preserved')
+    rows = []
+    rejected = []
+    for rotation in rotations.all_candidates(load_reference('rotation_rules')):
+        try:
+            entry = R.build_entry(args.anchor,args.soil,rotation)
+            future = R._future(args.anchor,args.soil,rotation)
+            rows.append({'rotation':rotation,'time_machine':R._time_machine(args.anchor,args.soil,rotation,future),
+                         'historical_2005_2024':entry['historical_run']})
+        except (ValueError,KeyError,OSError) as err:
+            rejected.append({'rotation':rotation,'reason':str(err)})
+    doc = {'schema_version':2,'anchor':args.anchor,'soil':args.soil,'et0_method':R.ET0_METHOD,
+           'assumptions':R.ASSUMPTIONS,'rotations':rows,'rejected':rejected}
+    args.output.parent.mkdir(parents=True,exist_ok=True)
+    tmp=args.output.with_suffix('.tmp')
+    tmp.write_text(json.dumps(doc,allow_nan=False,indent=2)+'\n')
+    tmp.replace(args.output)
+    print(f'Saved {len(rows)} continuous rotations; {len(rejected)} rejected: {args.output}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

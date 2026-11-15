@@ -2,8 +2,8 @@
   "_readme": "Rule: no number without a source. null = unknown (app shows 'no data' and lowers confidence). 'sources' lists keys from sources.json. 'assumed' lists fields that rest on team_assumption only. Dates are MM-DD. root_depth_m is a [min, max] range from FAO-56 Table 22; use min for irrigation-scheduling style estimates and max for rainfed stress modelling.",
   "corn": {
     "label": "Grain corn",
-    "kc": {"ini": null, "mid": 1.20, "end": [0.35, 0.60]},
-    "kc_basis": "FAO-56 Table 12, 'Maize, Field (grain)'. kc.ini not yet read (table image). kc.end is a range depending on grain dry-down.",
+    "kc": {"ini": 0.30, "mid": 1.20, "end": [0.35, 0.60]},
+    "kc_basis": "FAO-56 Table 12, 'Maize, Field (grain)'. Kc ini is the inherited Cereals group value 0.30 in Table 12 (wetting-dependent planning coefficient). kc.end is a range depending on grain dry-down.",
     "stage_days": [30, 40, 50, 50],
     "stage_days_basis": "FAO-56 Table 11, Maize (grain), Idaho USA (April planting, 170 days): cold-climate analogue for Ontario. Order: initial, development, mid, late.",
     "root_depth_m": [1.0, 1.7],
@@ -22,8 +22,8 @@
   },
   "soybean": {
     "label": "Soybean",
-    "kc": {"ini": null, "mid": 1.15, "end": 0.50},
-    "kc_basis": "FAO-56 Table 12, 'Soybeans'. kc.ini not yet read (table image).",
+    "kc": {"ini": 0.40, "mid": 1.15, "end": 0.50},
+    "kc_basis": "FAO-56 Table 12, 'Soybeans'. Kc ini is the inherited Legumes group value 0.40 in Table 12 (wetting-dependent planning coefficient).",
     "stage_days": [20, 35, 60, 25],
     "stage_days_basis": "FAO-56 Table 11, Soybeans, Central USA (May planting, 140 days). Table prints development as '30/35'; 35 matches the 140-day total.",
     "root_depth_m": [0.6, 1.3],
