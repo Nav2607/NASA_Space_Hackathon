@@ -1,0 +1,27 @@
+{
+  "fao56": {
+    "citation": "Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998). Crop evapotranspiration: guidelines for computing crop water requirements. FAO Irrigation and Drainage Paper 56.",
+    "url": "https://www.fao.org/4/x0490e/x0490e00.htm",
+    "tables_used": {
+      "table_11": "Lengths of crop development stages (https://www.fao.org/4/x0490e/x0490e0b.htm)",
+      "table_12": "Single crop coefficients Kc and maximum crop height (same page)",
+      "table_22": "Maximum rooting depth and depletion fraction p (https://www.fao.org/4/x0490e/x0490e0e.htm)"
+    },
+    "note": "Values are approximations for planning, per FAO-56 itself. Stage lengths come from other regions and are not Ontario-specific."
+  },
+  "aquacrop": {
+    "citation": "AquaCrop-OSPy (Python implementation of the FAO AquaCrop model), v3.1.0, built-in soil presets (aquacrop/entities/soil.py) and crop library (aquacrop/entities/crops/crop_params.py). Foster, T. et al.",
+    "url": "https://github.com/aquacropos/aquacrop",
+    "note": "Model default parameters, typical values rather than measurements. heat_threshold_c is the crop's Tmax_up: the air temperature above which pollination begins to fail. Has no entries for clover or cereal rye."
+  },
+  "omafra": {
+    "citation": "OMAFRA (Ontario Ministry of Agriculture, Food and Agribusiness): Agronomy Guide for Field Crops, Publication 811, and related crop-production factsheets.",
+    "url": "https://www.ontario.ca/page/field-crops",
+    "note": "Cited for qualitative rotation principles and planting/harvest windows. Specific pages still need to be linked entry by entry."
+  },
+  "team_assumption": {
+    "citation": "Value chosen by the project team, not yet tied to a published source.",
+    "url": null,
+    "note": "Anything sourced only to this must show 'Assumed' in the app and be replaced by a citation if one is found."
+  }
+}

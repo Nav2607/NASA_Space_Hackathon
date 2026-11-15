@@ -1,0 +1,14 @@
+{
+  "windsor": {"lat": 42.30, "lon": -83.03},
+  "chatham": {"lat": 42.40, "lon": -82.19},
+  "london": {"lat": 42.98, "lon": -81.25},
+  "stratford": {"lat": 43.37, "lon": -80.98},
+  "guelph": {"lat": 43.55, "lon": -80.25},
+  "hamilton": {"lat": 43.26, "lon": -79.87},
+  "niagara": {"lat": 43.16, "lon": -79.24},
+  "toronto": {"lat": 43.65, "lon": -79.38},
+  "barrie": {"lat": 44.39, "lon": -79.69},
+  "peterborough": {"lat": 44.30, "lon": -78.32},
+  "kingston": {"lat": 44.23, "lon": -76.48},
+  "ottawa": {"lat": 45.42, "lon": -75.70}
+}
