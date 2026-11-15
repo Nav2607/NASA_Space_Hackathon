@@ -41,10 +41,10 @@ def test_kc_curve_shape_and_length():
     corn = load_reference("crops")["corn"]
     kc, notes = crop_water.kc_curve(corn, dt.date(2020, 5, 10))
     assert len(kc) == sum(corn["stage_days"])
-    assert kc.iloc[0] == pytest.approx(crop_water.DEFAULT_KC_INI)
+    assert kc.iloc[0] == pytest.approx(corn["kc"]["ini"])
     assert kc.max() == pytest.approx(1.20)
     assert kc.iloc[-1] < kc.max()
-    assert any("assumed" in n for n in notes)  # missing Kc initial is reported, not hidden
+    assert corn["kc"]["ini"] == 0.30  # FAO Table 12 inherited cereal value, no fallback
 
 
 def test_crop_without_data_returns_none():

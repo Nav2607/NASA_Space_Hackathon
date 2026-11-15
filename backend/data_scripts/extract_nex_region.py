@@ -2,7 +2,7 @@
 
 Instead of one point, this pulls the whole region as a grid, so any map click can be served.
 For each model, grid cell and calendar month it computes how much the future differs from a
-historical baseline of the SAME model (this removes the model's own bias):
+historical baseline of the SAME model (a change-factor comparison, not full bias correction):
 
     tmax_c, tmin_c : future mean minus baseline mean (degrees C)
     pr_ratio       : future mean daily rain divided by baseline mean daily rain
@@ -12,7 +12,7 @@ Each climate model is kept separate; an ensemble median is added for convenience
 Results are PROJECTED climate, not observed weather.
 
 Run from the repo root:
-    python backend/data_scripts/extract_nex_region.py                  # ssp245, 2041-2060
+    python backend/data_scripts/extract_nex_region.py                  # ssp245, 2031-2050
     python backend/data_scripts/extract_nex_region.py --scenario ssp585
 Raw downloads are reduced to monthly means and cached in .nex-cache/region/, so a re-run resumes.
 Source: https://ds.nccs.nasa.gov/thredds/catalog/AMES/NEX/GDDP-CMIP6/catalog.html
@@ -88,6 +88,18 @@ def monthly_means(model, experiment, variable, year):
         data = np.array(nc.variables[variable][:], dtype=float)
         time_var = nc.variables["time"]
         units = time_var.units.decode() if isinstance(time_var.units, bytes) else time_var.units
+        calendar = getattr(time_var, "calendar", b"standard")
+        calendar = calendar.decode() if isinstance(calendar, bytes) else calendar
+        if calendar not in {"standard", "gregorian", "proleptic_gregorian"} or not units.startswith("days since "):
+            raise ValueError(f"Unsupported calendar/time units: {calendar}, {units}")
+        field = nc.variables[variable]
+        field_units = field.units.decode() if isinstance(field.units, bytes) else field.units
+        if field_units != ("kg m-2 s-1" if variable == "pr" else "K"):
+            raise ValueError(f"Unexpected units: {field_units}")
+        for key in ("_FillValue", "missing_value"):
+            fill = getattr(field, key, None)
+            if fill is not None:
+                data[data == fill] = np.nan
         times = np.array(time_var[:], dtype=float)
     lon = np.where(lon > 180, lon - 360, lon)
 
@@ -97,10 +109,16 @@ def monthly_means(model, experiment, variable, year):
         raise ValueError(f"Cannot read time units: {units!r}")
     since = dt.datetime(*(int(g or 0) for g in m.groups()))
     months = np.array([(since + dt.timedelta(days=float(t))).month for t in times])
+    dates = [(since + dt.timedelta(days=float(t))).date() for t in times]
+    expected = [dt.date(year, 1, 1) + dt.timedelta(days=i) for i in range((dt.date(year+1, 1, 1)-dt.date(year, 1, 1)).days)]
+    if dates != expected or not np.allclose(np.diff(times), 1):
+        raise ValueError("Missing, duplicate, unordered or out-of-period daily timestamps")
     days_in_year = 366 if (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)) else 365
     if data.ndim != 3 or len(times) != days_in_year or {*months} != set(range(1, 13)):
         raise ValueError(f"Unexpected time axis for {model} {variable} {year}: {len(times)} days")
     data[data > 1e19] = np.nan
+    if not np.isfinite(data).all():
+        raise ValueError("Incomplete regional observations; cannot silently omit missing daily values")
 
     if variable == "pr":
         if np.nanmin(data) < 0 or np.nanmax(data) >= 1:
@@ -127,7 +145,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--scenario", choices=["ssp245", "ssp585"], default="ssp245")
     parser.add_argument("--baseline", type=int, nargs=2, default=[1995, 2014])
-    parser.add_argument("--future", type=int, nargs=2, default=[2041, 2060])
+    parser.add_argument("--future", type=int, nargs=2, default=[2031, 2050])
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--output")
     args = parser.parse_args()
@@ -166,26 +184,35 @@ def main():
     deltas, summary = {}, {}
     for model in MODELS:
         deltas[model] = {}
+        baseline_means, future_means = {}, {}
         for var, name in VARIABLES.items():
             base = np.mean([results[(model, "historical", var, y)][2] for y in range(b0, b1 + 1)], axis=0)
             fut = np.mean([results[(model, args.scenario, var, y)][2] for y in range(f0, f1 + 1)], axis=0)
+            baseline_means[var], future_means[var] = base, fut
             if var == "pr":
                 ratio = np.where(base > 0.02, fut / np.maximum(base, 1e-9), np.nan)   # skip near-zero baselines
                 deltas[model]["pr_ratio"] = ratio
             else:
                 deltas[model][f"{name}_delta"] = fut - base
+        base_dtr = baseline_means["tasmax"] - baseline_means["tasmin"]
+        future_dtr = future_means["tasmax"] - future_means["tasmin"]
+        if (base_dtr <= 0).any() or (future_dtr < 0).any():
+            raise ValueError("Invalid modeled monthly diurnal temperature range")
+        deltas[model]["dtr_ratio"] = future_dtr / base_dtr
 
     keys = list(next(iter(deltas.values())))
     ensemble = {k: np.nanmedian([deltas[m][k] for m in MODELS], axis=0) for k in keys}
 
     doc = {
         "dataset": "NEX-GDDP-CMIP6", "version": "2.0", "source_type": "Projected",
-        "method": "delta change: per model, future monthly mean minus (temperature) or divided by (rain) the same model's baseline",
+        "source_url": BASE + "catalog/AMES/NEX/GDDP-CMIP6/catalog.html",
+        "daily_coverage": "Exact Gregorian daily coverage, finite values, fill values and variable units checked before monthly reduction",
+        "method": "Per-model matched-reference monthly changes: additive mean temperature, multiplicative diurnal temperature range and precipitation. Separate Tmax/Tmin deltas also retained as source diagnostics.",
         "scenario": args.scenario, "member": "r1i1p1f1",
         "baseline_period": {"start": b0, "end": b1}, "future_period": {"start": f0, "end": f1},
         "region_bbox": BBOX, "resolution_deg": 0.25,
         "extracted_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "units": {"tmax_c_delta": "degC change", "tmin_c_delta": "degC change", "pr_ratio": "future/baseline mean daily rain (1.0 = no change)"},
+        "units": {"tmax_c_delta": "degC change", "tmin_c_delta": "degC change", "pr_ratio": "future/baseline mean daily rain (1.0 = no change)", "dtr_ratio": "future/baseline monthly mean diurnal temperature range"},
         "layout": "variable[lat_index][lon_index][month-1]; null = no value",
         "lat": [round(float(v), 4) for v in lat], "lon": [round(float(v), 4) for v in lon],
         "models": {m: {k: nested(v) for k, v in deltas[m].items()} for m in MODELS},

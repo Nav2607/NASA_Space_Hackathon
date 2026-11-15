@@ -42,7 +42,8 @@ def test_eta_never_exceeds_demand_or_store():
 @pytest.fixture(scope="module")
 def guelph():
     weather = load_weather("guelph")
-    frame = weather[["tmax_c", "precip_mm"]].join(et0.et0_frame(weather, 43.55))
+    frame = weather.copy()
+    frame.attrs["latitude"] = 43.55
     return frame, load_reference("crops"), load_reference("soil_texture")
 
 
@@ -53,7 +54,8 @@ def test_real_corn_season_is_sane(guelph):
     assert (m["shortfall_mm"] >= 0).all() and (m["eta_mm"] <= m["etc_mm"] + 1e-6).all()
     s = wb.summarize(m)
     assert s["shortfall_mm_dry"] >= s["shortfall_mm_typical"]
-    assert 0 <= s["survival_rate"] <= 1
+    assert s["unmet_demand_days_typical"] >= 0
+    assert "survival_rate" not in s
 
 
 def test_lighter_soil_is_drier(guelph):
@@ -69,7 +71,7 @@ def test_crop_without_data_returns_none(guelph):
     assert wb.simulate_years(frame, crops["red_clover"], soils["loam"], range(2000, 2010)).empty
 
 
-def test_wheat_runs_spring_to_harvest_only(guelph):
+def test_wheat_runs_autumn_to_next_harvest(guelph):
     frame, crops, soils = guelph
     r = wb.simulate_season(frame, crops["winter_wheat"], soils["loam"], 2010)
-    assert r["season_start"] == "2010-04-01" and r["season_end"].startswith("2010-07")
+    assert r["season_start"].startswith("2009-09") and r["season_end"].startswith("2010-07")

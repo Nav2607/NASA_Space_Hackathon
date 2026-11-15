@@ -7,11 +7,12 @@ Docs for the frontend: http://localhost:8000/docs
 import json
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
+from functools import lru_cache
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -24,6 +25,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 
 class Priorities(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     water: float = Field(0.25, ge=0, le=1)
     nitrogen: float = Field(0.25, ge=0, le=1)
     soil_cover: float = Field(0.25, ge=0, le=1)
@@ -31,6 +33,7 @@ class Priorities(BaseModel):
 
 
 class RecommendRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     lat: float = Field(..., ge=41, le=47)
     lon: float = Field(..., ge=-84, le=-74)
     soil: str = "loam"                                  # sandy_loam | loam | clay_loam | clay
@@ -41,6 +44,8 @@ class RecommendRequest(BaseModel):
     must_include: list[str] = Field(default_factory=list)
     avoid: list[str] = Field(default_factory=list)
     priorities: Priorities = Priorities()
+    climate_period: Literal["historical", "future"] = "historical"
+    allow_cover_crops: bool = False
 
 
 @app.get("/health")
@@ -49,9 +54,19 @@ def health():
 
 
 @app.get("/anchors")
+@lru_cache(maxsize=1)
 def anchors():
     """The 12 data points with map-ready summary statistics."""
-    return json.loads((DATA_DIR / "processed" / "anchor_summary.json").read_text(encoding="utf-8"))
+    result = {}
+    for anchor, pos in R.load_anchors().items():
+        m = R.evaluate(anchor, "loam", (("corn", None),))
+        result[anchor] = {**pos, "reference_case": "continuous corn on loam, 2005–2024",
+                          "status": "available" if m is not None else "insufficient_data",
+                          "dry_year_shortfall_mm": m["shortfall_dry_mm"] if m else None,
+                          "typical_shortfall_mm": m["shortfall_typical_mm"] if m else None,
+                          "n_years": m["n_years"] if m else 0,
+                          "source_type": "Modeled with Hargreaves, fixed 1 m bucket; not survival"}
+    return result
 
 
 @app.get("/snap")
@@ -72,7 +87,8 @@ def reference():
         "main_crops": [{"id": k, "label": R.CROP_NAMES[k], "needs_equipment": crops[k]["needs_equipment"],
                         "data_quality": crops[k]["data_quality"]} for k in ("corn", "soybean", "winter_wheat")],
         "cover_crops": [{"id": k, "label": R.CROP_NAMES[k], "needs_equipment": crops[k]["needs_equipment"],
-                         "data_quality": crops[k]["data_quality"]} for k in ("cereal_rye", "red_clover")],
+                         "data_quality": crops[k]["data_quality"], "scoring_supported": False,
+                         "reason": "Demand/calendar inputs incomplete; excluded from scored alternatives"} for k in ("cereal_rye", "red_clover")],
         "equipment": ["planter", "grain_drill", "combine"],
         "priorities": list(R.DEFAULT_PRIORITIES),
     }
@@ -97,15 +113,22 @@ def evidence():
             {"name": "FAO-56 (Allen et al. 1998)", "used_for": "Evaporation method, crop coefficients, stage lengths, rooting depth", "tag": "Modeled"},
             {"name": "AquaCrop default soil and crop parameters", "used_for": "Soil water holding capacity by texture, crop heat limits", "tag": "Modeled (typical values)"},
             {"name": "Rotation rules", "used_for": "Nitrogen, soil cover, pest-break and timing ratings", "tag": "Rule-based / Assumed"},
+            {"name": "NEX-GDDP-CMIP6", "used_for": "Model-specific climate change factors for 2031–2050 versus matched model reference years",
+             "resolution": "0.25 degrees", "tag": "Climate projection inputs; modeled sensitivity realizations, not forecasts",
+             "source_url": "https://ds.nccs.nasa.gov/thredds/catalog/AMES/NEX/GDDP-CMIP6/catalog.html"},
         ],
         "limitations": [
             "Weather data is regional (about 50 km), not field-level.",
             "Water results are simplified relative comparisons between rotations, not field predictions. They ignore tile drainage, water tables and runoff.",
-            "Cover-crop water use is not modelled; water figures cover the main crops only.",
+            "Cover variants are excluded from scored alternatives because demand inputs are incomplete.",
             "Nitrogen, soil-cover and pest-break ratings are qualitative and rule-based; actual fertilizer needs depend on soil tests and local guidance.",
             "There is no yield data, so lower water use does not mean a better rotation.",
             "Some thresholds and crop calendars are assumptions (shown as 'Assumed'). Percentages are rounded to the nearest 5%.",
             "Educational decision support, not agronomic advice. Talk to a local agronomist.",
         ],
         "citations": {k: {"citation": v["citation"], "url": v["url"]} for k, v in sources.items()},
+        "simulation_method": R.ET0_METHOD,
+        "simulation_assumptions": R.ASSUMPTIONS,
+        "future_data": {"required_period": "2031–2050", "available_files": R.climate_future.available_files(),
+                        "method": "Separate climate-model runs; historical daily sequences adjusted by same-model monthly change factors; not forecasts"},
     }

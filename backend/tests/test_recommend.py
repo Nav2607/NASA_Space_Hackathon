@@ -16,17 +16,17 @@ def rot(*years):
     return tuple(y if isinstance(y, tuple) else (y, None) for y in years)
 
 
-def test_nitrogen_legume_credit_lowers_demand():
+def test_ordinal_nitrogen_uses_base_classes_without_uncited_credit():
     corn_soy = ratings.nitrogen_rating(rot("corn", "soybean"), CROPS)
     corn_corn = ratings.nitrogen_rating(rot("corn", "corn"), CROPS)
-    assert corn_soy["index"] < corn_corn["index"] == 3.0      # corn after soybean drops a level
-    assert corn_soy["legume_credit_crops"] == ["corn"]
+    assert corn_soy["index"] < corn_corn["index"] == 3.0      # crop mixture has lower base ordinal demand than continuous corn
+    assert corn_soy["legume_credit_crops"] == []  # no uncited predecessor credit
 
 
-def test_clover_cover_gives_credit_to_next_crop():
+def test_clover_does_not_receive_uncited_nitrogen_credit():
     with_clover = ratings.nitrogen_rating(rot(("winter_wheat", "red_clover"), "corn"), CROPS)
     without = ratings.nitrogen_rating(rot("winter_wheat", "corn"), CROPS)
-    assert with_clover["index"] < without["index"]
+    assert with_clover["index"] == without["index"]  # no uncited credit
 
 
 def test_cover_rating_rises_with_cover_crops():
@@ -74,9 +74,11 @@ def test_avoided_crop_never_appears():
 
 
 def test_impossible_constraints_say_so():
-    # without wheat or rye, the only corn/soybean rotation left is the farmer's own
-    with pytest.raises(R.InputError, match="constraints"):
-        R.recommend({**REQ, "avoid": ["winter_wheat", "cereal_rye"]})
+    # Without wheat, fewer than three feasible cash-crop alternatives remain.
+    out = R.recommend({**REQ, "avoid": ["winter_wheat", "cereal_rye"]})
+    assert out["status"] == "insufficient_feasible_alternatives"
+    assert all(all(y["crop"] != "winter_wheat" for y in o["rotation"]) for o in out["options"])
+    assert out["baseline"]["metrics"] is not None
 
 
 def test_default_baseline_is_labelled():
@@ -95,7 +97,8 @@ def test_bad_inputs_raise_clear_errors():
 
 def test_unknown_must_grow_crop_is_flagged_not_modelled():
     out = R.recommend({**REQ, "must_include": ["rice"]})
-    assert any("rice" in w for w in out["warnings"])
+    assert out["status"] == "insufficient_feasible_alternatives"
+    assert out["options"] == [] and out["inputs_used"]["must_include"] == ["rice"]
 
 
 def test_api_endpoints():

@@ -4,15 +4,13 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 
-# FAO-56 Table 12 gives no Kc ini for maize and soybean in the text we could read.
-# FAO-56 quotes Kc ini between about 0.1 and 1.15 depending on wetting, 0.3-0.4 is
-# typical for grain crops. Used only when crops.json has null, and always reported.
-DEFAULT_KC_INI = 0.4
 
 
 def _scalar(value):
     """kc.end may be a [low, high] range: use the midpoint."""
     if isinstance(value, (list, tuple)):
+        if not value or any(v is None for v in value):
+            return None
         return float(np.mean(value))
     return None if value is None else float(value)
 
@@ -27,15 +25,20 @@ def kc_curve(crop, plant_date):
     kc = crop.get("kc") or {}
     if len(days) != 4 or any(d is None for d in days):
         return None, ["no stage lengths in the crop library"]
+    if any(not isinstance(d, int) or d <= 0 for d in days):
+        raise ValueError("Stage lengths must be positive integer days")
     if kc.get("mid") is None or kc.get("end") is None:
         return None, ["no mid/end crop coefficient in the crop library"]
 
     notes = []
     kc_ini = _scalar(kc.get("ini"))
     if kc_ini is None:
-        kc_ini = DEFAULT_KC_INI
-        notes.append(f"Kc initial not in the library, assumed {DEFAULT_KC_INI}")
+        return None, ["no initial crop coefficient in the crop library"]
     kc_mid, kc_end = _scalar(kc["mid"]), _scalar(kc["end"])
+    if kc_mid is None or kc_end is None:
+        return None, ["incomplete mid/end crop coefficient range"]
+    if any(not np.isfinite(v) or v < 0 for v in (kc_ini, kc_mid, kc_end)):
+        raise ValueError("Crop coefficients must be finite and nonnegative")
     if isinstance(kc["end"], (list, tuple)):
         notes.append("Kc end given as a range, midpoint used")
 
