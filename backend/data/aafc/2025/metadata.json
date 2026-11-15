@@ -1,0 +1,241 @@
+{
+  "dataset": "AAFC Annual Crop Inventory",
+  "year": 2025,
+  "source_type": "Satellite-derived crop classification",
+  "archive_url": "https://agriculture.canada.ca/atlas/data_donnees/annualCropInventory/data_donnees/tif/2025/aci_2025_on_v1.zip",
+  "source_member": "aci_2025_on_v1.tif",
+  "legend_url": "https://agriculture.canada.ca/atlas/data_donnees/annualCropInventory/supportdocument_documentdesupport/aci_crop_classifications_iac_classifications_des_cultures.csv",
+  "licence_url": "https://open.canada.ca/en/open-government-licence-canada",
+  "extracted_at_utc": "2026-11-15T04:10:38.290633+00:00",
+  "requested_bbox_wgs84": [
+    -83.6,
+    41.6,
+    -74.4,
+    45.8
+  ],
+  "crs_wkt": "PROJCS[\"unnamed\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Albers_Conic_Equal_Area\"],PARAMETER[\"latitude_of_center\",40],PARAMETER[\"longitude_of_center\",-96],PARAMETER[\"standard_parallel_1\",44.75],PARAMETER[\"standard_parallel_2\",55.75],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+  "pixel_size_m": [
+    30.0,
+    30.0
+  ],
+  "source_nodata": null,
+  "note": "Native-grid bounding-window extraction, not an official Southern Ontario administrative boundary. No resampling. Code 0 is unlisted/unknown and preserved. Classifications are not verified field boundaries.",
+  "class_pixel_counts": {
+    "0": {
+      "label": "Unlisted/unknown",
+      "pixels": 261027423
+    },
+    "20": {
+      "label": "Water",
+      "pixels": 45528396
+    },
+    "30": {
+      "label": "Exposed land/barren",
+      "pixels": 1732834
+    },
+    "34": {
+      "label": "Urban/developed",
+      "pixels": 10570522
+    },
+    "35": {
+      "label": "Greenhouses",
+      "pixels": 35646
+    },
+    "50": {
+      "label": "Shrubland",
+      "pixels": 1367610
+    },
+    "60": {
+      "label": "Forest fire/burnt area ",
+      "pixels": 5570
+    },
+    "80": {
+      "label": "Wetland",
+      "pixels": 3757096
+    },
+    "85": {
+      "label": "Peatland",
+      "pixels": 11200
+    },
+    "110": {
+      "label": "Grassland",
+      "pixels": 383659
+    },
+    "122": {
+      "label": "Pasture/forages",
+      "pixels": 13987322
+    },
+    "131": {
+      "label": "Fallow",
+      "pixels": 8725
+    },
+    "133": {
+      "label": "Barley",
+      "pixels": 48174
+    },
+    "134": {
+      "label": "Other grains",
+      "pixels": 34065
+    },
+    "135": {
+      "label": "Millet",
+      "pixels": 62
+    },
+    "136": {
+      "label": "Oats",
+      "pixels": 119433
+    },
+    "137": {
+      "label": "Rye",
+      "pixels": 213565
+    },
+    "138": {
+      "label": "Spelt",
+      "pixels": 2675
+    },
+    "139": {
+      "label": "Triticale",
+      "pixels": 478
+    },
+    "142": {
+      "label": "Sorghum",
+      "pixels": 2357
+    },
+    "145": {
+      "label": "Winter wheat",
+      "pixels": 5975271
+    },
+    "146": {
+      "label": "Spring wheat",
+      "pixels": 301631
+    },
+    "147": {
+      "label": "Corn for grain",
+      "pixels": 13644961
+    },
+    "148": {
+      "label": "Tobacco",
+      "pixels": 98272
+    },
+    "149": {
+      "label": "Ginseng",
+      "pixels": 40265
+    },
+    "153": {
+      "label": "Canola/rapeseed",
+      "pixels": 88864
+    },
+    "154": {
+      "label": "Flaxseed",
+      "pixels": 2027
+    },
+    "155": {
+      "label": "Mustard",
+      "pixels": 114
+    },
+    "157": {
+      "label": "Sunflower",
+      "pixels": 2622
+    },
+    "158": {
+      "label": "Soybeans",
+      "pixels": 16040626
+    },
+    "162": {
+      "label": "Peas",
+      "pixels": 26548
+    },
+    "167": {
+      "label": "Beans",
+      "pixels": 47024
+    },
+    "168": {
+      "label": "Fababeans",
+      "pixels": 93
+    },
+    "176": {
+      "label": "Tomatoes",
+      "pixels": 50032
+    },
+    "177": {
+      "label": "Potatoes",
+      "pixels": 101141
+    },
+    "178": {
+      "label": "Sugarbeets",
+      "pixels": 23759
+    },
+    "179": {
+      "label": "Other vegetables",
+      "pixels": 196910
+    },
+    "182": {
+      "label": "Blueberry",
+      "pixels": 1301
+    },
+    "183": {
+      "label": "Cranberry",
+      "pixels": 567
+    },
+    "185": {
+      "label": "Other berries",
+      "pixels": 2903
+    },
+    "188": {
+      "label": "Orchards",
+      "pixels": 206994
+    },
+    "189": {
+      "label": "Other fruits",
+      "pixels": 1090
+    },
+    "190": {
+      "label": "Vineyards",
+      "pixels": 138615
+    },
+    "191": {
+      "label": "Hops",
+      "pixels": 12
+    },
+    "192": {
+      "label": "Sod",
+      "pixels": 55626
+    },
+    "193": {
+      "label": "Herbs",
+      "pixels": 48
+    },
+    "194": {
+      "label": "Nursery",
+      "pixels": 36411
+    },
+    "195": {
+      "label": "Buckwheat",
+      "pixels": 311
+    },
+    "199": {
+      "label": "Other crops",
+      "pixels": 215
+    },
+    "210": {
+      "label": "Coniferous",
+      "pixels": 20122716
+    },
+    "220": {
+      "label": "Broadleaf",
+      "pixels": 39516162
+    },
+    "230": {
+      "label": "Mixedwood",
+      "pixels": 43870741
+    }
+  },
+  "width": 24028,
+  "height": 19953,
+  "output_bounds_native_crs": [
+    958200.0,
+    283770.0,
+    1679040.0,
+    882360.0
+  ]
+}

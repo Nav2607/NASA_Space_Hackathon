@@ -14,3 +14,4 @@ _netrc
 .pytest_cache/
 *.tmp
 *.log
+.aafc-cache/
