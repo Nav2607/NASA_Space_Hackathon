@@ -12,6 +12,7 @@ from functools import lru_cache
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ConfigDict
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -132,3 +133,9 @@ def evidence():
         "future_data": {"required_period": "2031–2050", "available_files": R.climate_future.available_files(),
                         "method": "Separate climate-model runs; historical daily sequences adjusted by same-model monthly change factors; not forecasts"},
     }
+
+
+# Serve the web app from the same server so one command runs everything: http://localhost:8000/
+_FRONTEND = Path(__file__).resolve().parents[2] / "frontend" / "integrated-demo"
+if _FRONTEND.is_dir():
+    app.mount("/", StaticFiles(directory=_FRONTEND, html=True), name="web")

@@ -79,3 +79,17 @@ The map needs internet and a WebGL-capable browser. Test through Live Server.
 If a map remains blank, inspect developer tools Console/Network for failed tile, script, or WebGL loads; removing AAFC alone does not solve all possible failures.
 
 Official map sources: https://openfreemap.org/ and https://openfreemap.org/quick_start/
+
+
+## Backend integration (current)
+
+Results now come from the Field Shift Canada backend (`POST /recommend`), not from in-browser NASA POWER calls. `results.js` was replaced by `backend-results.js`; the older sections above describing the browser-only screening are historical.
+
+Run everything with one command from the repo root, then open http://localhost:8000/ :
+
+```bash
+pip install -r backend/requirements.txt
+python -m uvicorn backend.api.main:app --port 8000
+```
+
+If the page is served elsewhere (Live Server, port 5500), set `apiBase` in `config.js` (default `http://localhost:8000`). The "2031–2050 projection" button re-runs the model with NEX-GDDP-CMIP6 change factors. Form soils the backend lacks (sandy, silt loam, unknown) are mapped to the nearest one and the user is told.
