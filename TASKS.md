@@ -15,6 +15,7 @@ This checklist records the SMAP scope decision; it does not change other milesto
 - [x] Run final scientific, API and data-preservation checks: 73 tests pass; all-anchor/four-soil historical physical checks and all-anchor/three-model future smoke checks pass.
 - [ ] Future scientific refinement: defensible bare-soil/offseason evaporation, snow/frozen-soil treatment, Ontario calendar/compatibility citations and cover-crop demand inputs.
 - [x] Minimal daily Blind Spots API: existing diagnostic flags, consecutive exposure events, per-phase/model counts and explicit delta-weather/approximate-screening labels. Contract: [BLIND_SPOTS_API.md](backend/BLIND_SPOTS_API.md).
+- [x] Extend Blind Spots with threshold-consistent intensity, event characteristics, eligible-season weekly heatmaps and matched-reference future model comparisons; descriptive labels only, no crop-damage or probability claims.
 - [ ] Protective ground-cover and rainfall-exposure parameters/contract remain deferred; no erosion or crop-damage claims.
 
 Current method and frontend migration notes: [SCIENTIFIC_VALIDITY.md](backend/SCIENTIFIC_VALIDITY.md).

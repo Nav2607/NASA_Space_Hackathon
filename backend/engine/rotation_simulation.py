@@ -122,14 +122,24 @@ def simulate_rotation(weather, lat, rotation, crops, soil, start_year, end_year,
         demand = reference_et * kc
         bucket = run_bucket(demand, frame.precip_mm.to_numpy(), capacity,
                             initial_storage=initial_fraction * capacity)
-        threshold = ((capacity - np.minimum(bucket["initial_store"] + frame.precip_mm.to_numpy(), capacity))
-                     > depletion * capacity) & (kc > 0)
+        # Preserve the existing after-rain, before-ET threshold exactly. Intensity
+        # normalizes only the depletion beyond that threshold; it does not alter ET.
+        depletion_mm = capacity - np.minimum(bucket["initial_store"] + frame.precip_mm.to_numpy(), capacity)
+        depletion_threshold_mm = depletion * capacity
+        threshold = (depletion_mm > depletion_threshold_mm) & (kc > 0)
+        intensity = np.divide(np.maximum(depletion_mm - depletion_threshold_mm, 0),
+                              capacity - depletion_threshold_mm, out=np.zeros(len(index)),
+                              where=(capacity > depletion_threshold_mm) & (kc > 0))
+        heat_exceedance = np.where(kc > 0, np.maximum(frame.tmax_c.to_numpy() - heat, 0), 0)
         daily = pd.DataFrame({"crop": crop_ids, "kc": kc, "et0_mm": reference_et,
                               "demand_mm": demand, "actual_et_mm": bucket["eta"],
                               "shortfall_mm": bucket["shortfall"], "storage_mm": bucket["store"],
                               "initial_storage_mm": bucket["initial_store"], "drainage_mm": bucket["drainage"],
                               "precip_mm": frame.precip_mm, "tmax_c": frame.tmax_c,
                               "sensitive_window": critical, "mass_balance_error_mm": bucket["mass_balance_error"],
+                              "depletion_mm": depletion_mm, "depletion_threshold_mm": depletion_threshold_mm,
+                              "water_depletion_intensity": intensity, "heat_threshold_c": heat,
+                              "heat_exceedance_c": heat_exceedance,
                               "threshold_stress": threshold, "critical_stress": threshold & critical,
                               "unmet_demand": bucket["shortfall"] > 1e-9,
                               "heat_stress": (frame.tmax_c.to_numpy() >= heat) & critical}, index=index)

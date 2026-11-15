@@ -171,6 +171,18 @@ mode and now through `POST /blind-spots`; see
 aggregation. This endpoint only screens existing flags; there is no fabricated
 rainfall-exposure or erosion metric.
 
+The incremental vulnerability extension adds threshold-normalized depletion
+intensity from the same after-rain/before-ET storage used by the existing stress
+flag, maximum-temperature exceedance and event aggregates. No water physics or
+agricultural parameters change. Weekly exposure frequencies average eligible
+phases within each crop/week/climate year before averaging years; absent crops
+are excluded, and phases are not counted as extra observed seasons. Future
+comparisons use one additional unadjusted matched reference run alongside the
+existing independent model runs, not a different selected historical decade.
+Persistent/emerging/diminishing/uncertain labels describe model directions, not
+significance, probability, damage or yield. Full formulas, denominators and JSON
+examples are in the Blind Spots API contract linked above.
+
 ## Remaining scientific limitations
 
 - Off-crop soil evaporation is omitted (explicit zero modeled demand outside
