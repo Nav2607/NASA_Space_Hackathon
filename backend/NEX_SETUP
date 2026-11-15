@@ -1,0 +1,22 @@
+# NEX Climate Data Extraction
+
+Purpose: prepare projected weather for Field Shift Canada.
+
+Demo location: London, Ontario — 43.0, -81.25.
+Future period: 2041–2060.
+Scenario: SSP2-4.5.
+Models: ACCESS-CM2, MPI-ESM1-2-HR, MRI-ESM2-0.
+
+Variables:
+- Daily minimum temperature, converted to Celsius.
+- Daily maximum temperature, converted to Celsius.
+- Daily precipitation, converted to mm/day.
+
+Script: backend/data_scripts/extract_nex.py
+Output: backend/data/nex/london_demo.json
+
+Data source:
+https://ds.nccs.nasa.gov/thredds/catalog/AMES/NEX/GDDP-CMIP6/catalog.html
+
+Keep each climate model separate.
+Label results as projected climate, not observed weather.
